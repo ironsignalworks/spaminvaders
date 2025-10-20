@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -6,8 +5,6 @@
 <title>Spam Invaders</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-
 <style>
   :root{
     --bg:#f1f4ff; --ink:#1f2a44; --accent:#5a65d8; --danger:#d94f6a; --gold:#ffc857;
@@ -24,104 +21,85 @@
     overflow:hidden; border-radius:9px;
   }
   .frame::after{content:none;}
-  header,footer{position:absolute;left:0;right:0;z-index:3;padding:9px 14px;display:flex;}
+  header,footer{position:absolute;left:0;right:0;z-index:3;display:flex;align-items:center;padding:9px 14px}
   header{
-    top:0; bottom:auto; align-items:center; justify-content:center;
-    background:#e9ecff;
+    top:0; bottom:auto; justify-content:center;
+    background:#e9ecff; gap:12px;
     border-bottom:1px solid rgba(123,136,194,.35);
     box-shadow:0 2px 8px rgba(42,52,94,.18);
     color:var(--ink);
   }
   footer{
-    bottom:0; top:auto; align-items:center; justify-content:center;
+    bottom:0; top:auto; justify-content:center; font-size:8px; text-transform:uppercase;
     background:#eef1ff;
     border-top:1px solid rgba(133,146,209,.28);
     box-shadow:0 -2px 8px rgba(42,52,94,.18);
   }
-  .headerStats{
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    width:100%;
-    flex-wrap:wrap;
-  }
   .hudBlock{
-    display:flex; flex-direction:column; gap:2px; min-width:80px;
+    display:flex; flex-direction:column; gap:2px; min-width:88px;
   }
   .hudLabel{
-    font-size:7px; text-transform:uppercase; color:rgba(163,214,190,.75); letter-spacing:.5px;
+    font-size:10px; text-transform:uppercase; color:rgba(70,86,146,.75); letter-spacing:.5px;
   }
   .hudValue{
-    font-size:12px; color:#f6fff9; font-variant-numeric:tabular-nums; display:inline-block; min-width:72px;
+    font-size:14px; color:#24335c; font-variant-numeric:tabular-nums; display:inline-block; min-width:72px;
   }
-  .hudTight{min-width:auto;}
-  .headerStats .hudBlock{
-    padding:5px 7px;
-    border-radius:7px;
-    background:rgba(4,22,16,.62);
-    border:1px solid rgba(126,255,190,.28);
-    box-shadow:0 4px 12px rgba(3,10,8,.28);
-    align-items:flex-start;
-    flex:0 0 auto;
-  }
+  .hudTight{min-width:auto; flex:0 0 auto;}
   .gauge{
-    position:relative; width:110px; height:8px; border:1px solid rgba(109,255,151,.35); background:rgba(109,255,151,.07);
+    position:relative; width:115px; height:9px; border:1px solid rgba(112,142,204,.45); background:rgba(142,158,214,.12);
   }
   .gauge i{
-    position:absolute; inset:1px; background:linear-gradient(90deg,var(--accent),#9bffbc); transform-origin:left center;
+    position:absolute; inset:1px; background:linear-gradient(90deg,var(--accent),#8aa4ff); transform-origin:left center;
   }
-  .lives{ display:flex; gap:6px; }
-  .life{ width:12px; height:9px; background:var(--accent); box-shadow:0 0 4px rgba(109,255,151,.4); }
+  .footerBar{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+  .statusGroup{
+    display:flex; align-items:center; gap:14px;
+  }
+  .lives{
+    display:flex; gap:5px;
+  }
+  .life{
+    width:12px; height:9px; background:var(--accent); box-shadow:0 0 4px rgba(90,101,216,.35);
+  }
   .ghost{opacity:.2}
   canvas{
-    position:absolute; top:96px; left:16px; width:357px; height:441px; background:#020409; z-index:1;
+    position:absolute; top:96px; left:16px; width:357px; height:441px; background:#ffffff; z-index:1;
     image-rendering:pixelated;
+    border:1px solid rgba(187,195,230,.45);
   }
-  .footerBar{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
-  .statusGroup{ display:flex; align-items:center; gap:14px; }
-  footer .hudBlock{
-    background:#ffffff;
-    border:1px solid rgba(142,158,214,.32);
-    border-radius:7px;
-    padding:6px 8px;
-    min-width:auto;
-    gap:3px;
+  footer .tickerLabel{
+    margin-right:12px; color:#253377;
   }
-  footer .hudLabel{ font-size:8px; color:rgba(70,86,146,.72); }
-  .ticker{
-    display:flex; align-items:center; gap:8px; font-size:8px; text-transform:uppercase; color:#42508b; flex:1; justify-content:flex-end;
+  footer .tickerText{
+    animation:tickerBlink 1.4s steps(2,end) infinite; color:#42508b;
   }
-  footer .tickerLabel{ color:#253377; }
-  footer .tickerText{ animation:tickerBlink 1.4s steps(2,end) infinite; }
   @keyframes tickerBlink{0%,49%{opacity:.18}50%,100%{opacity:1}}
   @keyframes alertFlash{0%,45%{opacity:1}55%,100%{opacity:.2}}
   .overlay{
     position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    background:rgba(240,244,255,.94); z-index:5; text-align:center; padding:24px; text-transform:uppercase; gap:12px;
-    border:1px solid rgba(121,134,196,.35);
+    background:rgba(0,0,0,.9); z-index:5; text-align:center; padding:20px; text-transform:uppercase; gap:12px;
   }
-  .overlay h1{color:#203070;margin:0;font-size:16px;letter-spacing:.6px;}
-  .overlay p{max-width:360px;color:#4a587f;margin:0;font-size:9px;line-height:1.6;text-transform:none;}
-  .overlay-boss h1{color:#a83254;font-size:18px;animation:alertFlash .6s steps(2,end) infinite;}
-  .overlay-boss p{font-size:10px;color:#2c3c74;letter-spacing:1px;}
+  .overlay h1{color:var(--accent);margin:0;font-size:14px;}
+  .overlay p{max-width:360px;color:#bce2c6;margin:0;font-size:8px;line-height:1.6;}
+  .overlay-boss h1{color:var(--danger);font-size:16px;animation:alertFlash .6s steps(2,end) infinite;}
+  .overlay-boss p{font-size:10px;color:var(--accent);letter-spacing:1px;}
   .btn{
-    display:inline-flex; align-items:center; justify-content:center;
-    padding:10px 18px; background:#f8f9ff; color:#2645a6; border:1px solid rgba(120,138,200,.6);
-    border-radius:18px; font-size:9px; cursor:pointer; box-shadow:0 2px 6px rgba(32,48,110,.2); text-transform:uppercase; letter-spacing:1px;
+    display:inline-block; padding:9px 14px; background:transparent; color:var(--accent); border:2px solid var(--accent);
+    border-radius:0; font-size:9px; cursor:pointer; box-shadow:0 0 9px rgba(109,255,151,.4); text-transform:uppercase; letter-spacing:1.4px;
   }
-  .btn:hover{background:#e4e8ff; color:#1d327c;}
+  .btn:hover{background:rgba(109,255,151,.25); color:#041b0b;}
   .bossbar{
-    position:absolute; left:14px; right:14px; top:126px; height:9px; z-index:4;
+    position:absolute; left:14px; right:14px; top:54px; height:9px; z-index:4;
     border:1px solid rgba(255,223,75,.45); border-radius:6px; overflow:hidden; background:rgba(255,223,75,.08); display:none;
   }
-  .bossbar i{ display:block; height:100%; background:linear-gradient(90deg,var(--gold),#ffeaa0); transform-origin:left center; }
-  .bosslabel{
-    position:absolute; top:108px; left:14px; z-index:4; font-size:7px; color:#ffe07e; text-shadow:0 0 5px rgba(255,223,75,.35); display:none;
+  .bossbar i{
+    display:block; height:100%; background:linear-gradient(90deg,var(--gold),#ffeaa0); transform-origin:left center;
   }
-  #hudLevel{ font-size:9px; letter-spacing:.6px; }
-  
+  .bosslabel{
+    position:absolute; top:42px; left:14px; z-index:4; font-size:7px; color:#ffe07e; text-shadow:0 0 5px rgba(255,223,75,.35); display:none;
+  }
 </style>
 </head>
 <body>
@@ -135,10 +113,6 @@
         <div class="hudBlock">
           <span class="hudLabel">Hi-Score</span>
           <span class="hudValue" id="hudHigh">00000</span>
-        </div>
-        <div class="hudBlock">
-          <span class="hudLabel">Boss HP</span>
-          <span class="hudValue" id="hudBoss">---</span>
         </div>
         <div class="hudBlock hudTight">
           <span class="hudLabel">Folder</span>
@@ -173,7 +147,7 @@
 
     <!-- Start -->
     <div class="overlay" id="start">
-      <h1>[ SPAM INVADERS ]</h1>
+      <h1>[ INSERT COIN ]</h1>
       <p>Sector mailbox under attack.<br>Deploy spam filters and defend the archive.</p>
       <button class="btn" id="btnStart">START</button>
     </div>
@@ -212,7 +186,6 @@
   const bossLabel = document.getElementById('bossLabel');
   const hudScore = document.getElementById('hudScore');
   const hudHigh = document.getElementById('hudHigh');
-  const hudBoss = document.getElementById('hudBoss');
   const heartsEl = document.getElementById('hearts');
   const tickerText = document.querySelector('.tickerText');
 
@@ -245,152 +218,250 @@
   let powerUps = [];
 
   const CAMPAIGN = [
-    { id:1, title:"Clickbait Cloud",  tone:"funny / tutorial", palette:["#aefaff","#b8ffd8"], subjects:["Singles In Your Area.exe","Guaranteed Weight Loss (No Effort Required)","5% Off Something Stupid"], boss:"influencer" },
-    { id:2, title:"Phishing Swarm",  tone:"office anxiety",   palette:["#ffc14a","#ff5a2b"], subjects:["Urgent Invoice Attached!","Re: Re: Re: Final Notice","Free Vacation Voucher (Limited Time!)"], boss:"phishmaster" },
-    { id:3, title:"Crypto Carnage",   tone:"neon greed",       palette:["#00ff99","#ff00aa"], subjects:["Crypto Goes 1000x Tonight!!!","Exclusive NFT Opportunity"], boss:"coinlord" },
-    { id:4, title:"Royal Scam",       tone:"theatrical corruption", palette:["#ffd24a","#b21b1b"], subjects:["Prince Requests Your Aid (Re: Inheritance Transfer)"], boss:"prince" }
+    {
+      id: 1,
+      title: "Clickbait Cloud",
+      tone: "funny / tutorial",
+      palette: ["#aefaff","#b8ffd8"],
+      subjects: [
+        "Singles In Your Area.exe",
+        "Guaranteed Weight Loss (No Effort Required)",
+        "5% Off Something Stupid"
+      ],
+      boss: "influencer"
+    },
+    {
+      id: 2,
+      title: "Phishing Swarm",
+      tone: "office anxiety",
+      palette: ["#ffc14a","#ff5a2b"],
+      subjects: [
+        "Urgent Invoice Attached!",
+        "Re: Re: Re: Final Notice",
+        "Free Vacation Voucher (Limited Time!)"
+      ],
+      boss: "phishmaster"
+    },
+    {
+      id: 3,
+      title: "Crypto Carnage",
+      tone: "neon greed",
+      palette: ["#00ff99","#ff00aa"],
+      subjects: [
+        "Crypto Goes 1000x Tonight!!!",
+        "Exclusive NFT Opportunity"
+      ],
+      boss: "coinlord"
+    },
+    {
+      id: 4,
+      title: "Royal Scam",
+      tone: "theatrical corruption",
+      palette: ["#ffd24a","#b21b1b"],
+      subjects: [
+        "Prince Requests Your Aid (Re: Inheritance Transfer)"
+      ],
+      boss: "prince"
+    }
   ];
 
   const BOSSES = {
-    influencer: { id:'influencer', displayName:'INFLUENCER.EXE', tagline:'Smash that subscribe button or perish.', attack:'heartFan', color:'#ff6ad5', accent:'#ffffff', size:{w:120,h:80}, speed:1.06, approachY:108, approachSpeed:0.06 },
-    phishmaster:{ id:'phishmaster',displayName:'PHISHMASTER 3000', tagline:'Your credentials are my currency.', attack:'aimedShot', color:'#ff8a33', accent:'#ffe7c2', size:{w:140,h:90}, speed:0.96, approachY:112, approachSpeed:0.052 },
-    coinlord:   { id:'coinlord',   displayName:'COINLORD .v3', tagline:'In volatility we trust.', attack:'coinRain', color:'#00ff99', accent:'#ff00aa', size:{w:170,h:90}, speed:1.08, approachY:118, approachSpeed:0.048 },
-    prince:     { id:'prince',     displayName:'NIGERIAN PRINCE AI v7.3', tagline:'One last favor, my trusted friend...', attack:'royalSeal', color:'#ffd24a', accent:'#b21b1b', size:{w:96,h:96}, speed:0.94, approachY:110, approachSpeed:0.05 }
+    influencer: {
+      id: 'influencer',
+      displayName: 'INFLUENCER.EXE',
+      tagline: 'Smash that subscribe button or perish.',
+      attack: 'heartFan',
+      color: '#ff6ad5',
+      accent: '#ffffff',
+      size: { w: 120, h: 80 },
+      speed: 1.5
+    },
+    phishmaster: {
+      id: 'phishmaster',
+      displayName: 'PHISHMASTER 3000',
+      tagline: 'Your credentials are my currency.',
+      attack: 'aimedShot',
+      color: '#ff8a33',
+      accent: '#ffe7c2',
+      size: { w: 140, h: 90 },
+      speed: 1.6
+    },
+    coinlord: {
+      id: 'coinlord',
+      displayName: 'COINLORD.v3',
+      tagline: 'In volatility we trust.',
+      attack: 'coinRain',
+      color: '#00ff99',
+      accent: '#ff00aa',
+      size: { w: 170, h: 90 },
+      speed: 1.8
+    },
+    prince: {
+      id: 'prince',
+      displayName: 'NIGERIAN PRINCE AI v7.3',
+      tagline: 'One last favor, my trusted friend...',
+      attack: 'royalSeal',
+      color: '#ffd24a',
+      accent: '#b21b1b',
+      size: { w: 96, h: 96 },
+      speed: 1.4
+    }
+  };
+  const PRINCE_PAL32 = {
+    ".": null,
+    "k": "#0b0f12",
+    "b": "#0e1720",
+    "C": "#ffd24a",
+    "c": "#e6b93f",
+    "J": "#ff3a3a",
+    "j": "#ff9f9f",
+    "S": "#f5cc66",
+    "s": "#e1b652",
+    "o": "#b88f33",
+    "e": "#f2f7ff",
+    "n": "#11151a",
+    "g": "#18a261",
+    "G": "#0f6f41",
+    "r": "#ffdf6b",
+    "R": "#caa23b",
+    "w": "#ffffff",
+    "W": "#e6eef6",
+    "E": "#4b5663",
+    "d": "#d32b2b",
+    "D": "#b31f1f"
   };
 
-  const PRINCE_PAL32 = {
-  ".": null,
-  "k": "#0b0f12",
-  "b": "#0e1720",
-  "C": "#ffd24a",
-  "c": "#e6b93f",
-  "J": "#ff3a3a",
-  "j": "#ff9f9f",
-  "S": "#f5cc66",
-  "s": "#e1b652",
-  "o": "#b88f33",
-  "e": "#f2f7ff",
-  "n": "#11151a",
-  "g": "#18a261",
-  "G": "#0f6f41",
-  "r": "#ffdf6b",
-  "R": "#caa23b",
-  "w": "#ffffff",
-  "W": "#e6eef6",
-  "E": "#4b5663",
-  "d": "#d32b2b",
-  "D": "#b31f1f"
-};
+  const PRINCE32_IDLE_A = [
+    "..kk..CCCCCCCC..kk..............",
+    ".kkCJJCCCCCCCCJJCkk.............",
+    ".kCCCCCCCCCCCCCCCCk.............",
+    "..kCCCcCCCCCCCCcCCk.............",
+    "...kkk..kkkkkk..kkk.............",
+    "...k..sSSSSSSSSs..k.............",
+    "..k.sSSssssssssSSs.k............",
+    "..k.sSse..nn..eSsS.k............",
+    "..k.sSSssssssssSSs.k............",
+    "..k..sSSSSSSSSSSs..k............",
+    "...k..sooooooooS..k.............",
+    "...k...sooooooS...k.............",
+    "...kk...soooos...kk.............",
+    "....kk...ssss...kk..............",
+    ".....kRk......kRk...............",
+    "...kkggggggggggggkk.............",
+    "..kgGGgggggggggggGGgk...........",
+    ".kgGgGRrrrrrrrrRGgGgk...........",
+    ".kgGgGRrwwEwwrRGgGgk............",
+    ".kgGgGRrWwEwWrRGgGgk............",
+    ".kgGgGRrrrrrrrrRGgGgk............",
+    ".kgGGggGGgggggggGGgk.............",
+    "..kggggggggggggggggk............",
+    "...kkGggggggGGgggkk.............",
+    "....kGGGGGGGGGGGGGk.............",
+    ".....kGGGGGGGGGGGk..............",
+    "......kGGGGGGGGGk...............",
+    ".......kkkkkkkkk................",
+    "........k.....k.................",
+    "........k.....k.................",
+    ".........kkkkk..................",
+    "................................"
+  ];
 
-const PRINCE32_IDLE_A = [
-  "..kk..CCCCCCCC..kk..............",
-  ".kkCJJCCCCCCCCJJCkk.............",
-  ".kCCCCCCCCCCCCCCCCk.............",
-  "..kCCCcCCCCCCCCcCCk.............",
-  "...kkk..kkkkkk..kkk.............",
-  "...k..sSSSSSSSSs..k.............",
-  "..k.sSSssssssssSSs.k............",
-  "..k.sSse..nn..eSsS.k............",
-  "..k.sSSssssssssSSs.k............",
-  "..k..sSSSSSSSSSSs..k............",
-  "...k..sooooooooS..k.............",
-  "...k...sooooooS...k.............",
-  "...kk...soooos...kk.............",
-  "....kk...ssss...kk..............",
-  ".....kRk......kRk...............",
-  "...kkggggggggggggkk.............",
-  "..kgGGgggggggggggGGgk...........",
-  ".kgGgGRrrrrrrrrRGgGgk...........",
-  ".kgGgGRrwwEwwrRGgGgk............",
-  ".kgGgGRrWwEwWrRGgGgk............",
-  ".kgGgGRrrrrrrrrRGgGgk............",
-  ".kgGGggGGgggggggGGgk.............",
-  "..kggggggggggGGggggk............",
-  "...kkGggggggGGgggkk.............",
-  "....kGGGGGGGGGGGGGk.............",
-  ".....kGGGGGGGGGGGk..............",
-  "......kGGGGGGGGGk...............",
-  ".......kkkkkkkkk................",
-  "........k.....k.................",
-  "........k.....k.................",
-  ".........kkkkk..................",
-  "................................"
-];
+  const PRINCE32_IDLE_B = [
+    "..kk..CCCCCCCC..kk..............",
+    ".kkCjJCCCCCCCCJjCkk.............",
+    ".kCCCCCCCCCCCCCCCCk.............",
+    "..kCCCcCCCCCCCCcCCk.............",
+    "...kkk..kkkkkk..kkk.............",
+    "...k..sSSSSSSSSs..k.............",
+    "..k.sSSssssssssSSs.k............",
+    "..k.sSse..nn..eSsS.k............",
+    "..k.sSSssssssssSSs.k............",
+    "..k..sSSSSSSSSSSs..k............",
+    "...k..sooooooooS..k.............",
+    "...k...sooooooS...k.............",
+    "...kk...soooos...kk.............",
+    "....kk...ssss...kk..............",
+    ".....kRk......kRk...............",
+    "...kkggggGGggggggkk.............",
+    "..kgGGgggggggggggGGgk...........",
+    ".kgGgGRrrrrrrrrRGgGgk...........",
+    ".kgGgGRrWwEwWrRGgGgk............",
+    ".kgGgGRrwwEwwrRGgGgk............",
+    ".kgGgGRrrrrrrrrRGgGgk............",
+    ".kgGGgggggggggggGGgk.............",
+    "..kggggggggggggggggk............",
+    "...kkGggggggGGgggkk.............",
+    "....kGGGGGGGGGGGGGk.............",
+    ".....kGGGGGGGGGGGk..............",
+    "......kGGGGGGGGGk...............",
+    ".......kkkkkkkkk................",
+    "........k.....k.................",
+    "........k.....k.................",
+    ".........kkkkk..................",
+    "................................"
+  ];
 
-const PRINCE32_IDLE_B = [
-  "..kk..CCCCCCCC..kk..............",
-  ".kkCjJCCCCCCCCJjCkk.............",
-  ".kCCCCCCCCCCCCCCCCk.............",
-  "..kCCCcCCCCCCCCcCCk.............",
-  "...kkk..kkkkkk..kkk.............",
-  "...k..sSSSSSSSSs..k.............",
-  "..k.sSSssssssssSSs.k............",
-  "..k.sSse..nn..eSsS.k............",
-  "..k.sSSssssssssSSs.k............",
-  "..k..sSSSSSSSSSSs..k............",
-  "...k..sooooooooS..k.............",
-  "...k...sooooooS...k.............",
-  "...kk...soooos...kk.............",
-  "....kk...ssss...kk..............",
-  ".....kRk......kRk...............",
-  "...kkggggGGggggggkk.............",
-  "..kgGGgggggggggggGGgk...........",
-  ".kgGgGRrrrrrrrrRGgGgk...........",
-  ".kgGgGRrWwEwWrRGgGgk............",
-  ".kgGgGRrwwEwwrRGgGgk............",
-  ".kgGgGRrrrrrrrrRGgGgk............",
-  ".kgGGgggggggggggGGgk.............",
-  "..kggggggggggggggggk............",
-  "...kkGggggggGGgggkk.............",
-  "....kGGGGGGGGGGGGGk.............",
-  ".....kGGGGGGGGGGGk..............",
-  "......kGGGGGGGGGk...............",
-  ".......kkkkkkkkk................",
-  "........k.....k.................",
-  "........k.....k.................",
-  ".........kkkkk..................",
-  "................................"
-];
+  const PRINCE32_HURT = [
+    "..kk..CCCCCCCC..kk..............",
+    ".kkCJJCCCCCCCCJJCkk.............",
+    ".kCCCCCCCCCCCCCCCCk.............",
+    "..kCCCcCCCCCCCCcCCk.............",
+    "...kkk..kbbbbk..kkk.............",
+    "...k..sSSSSSSSSs..k.............",
+    "..k.SSSSSssssSSSS.k............",
+    "..k.sSse..nn..eSsS.k............",
+    "..k.SSSSSssssSSSS.k............",
+    "..k..sSSSSSSSSSSs..k............",
+    "...k..sooooooooS..k.............",
+    "...k...sooooooS...k.............",
+    "...kk...soooos...kk.............",
+    "....kk...ssss...kk..............",
+    ".....kRk......kRk...............",
+    "...kkggggggggggggkk.............",
+    "..kgGGgggggggggggGGgk...........",
+    ".kgGgGRrRRRRRRrRGgGgk...........",
+    ".kgGgGRrWwEwWrRGgGgk............",
+    ".kgGgGRrwwEwwrRGgGgk............",
+    ".kgGgGRrRRRRRRrRGgGgk............",
+    ".kgGGgggggggggggGGgk.............",
+    "..kggGGgggggggggGGgk............",
+    "...kkGggggggGGgggkk.............",
+    "....kGGGGGGGGGGGGGk.............",
+    ".....kGGGGGGGGGGGk..............",
+    "......kGGGGGGGGGk...............",
+    ".......kkkkkkkkk................",
+    "........k.....k.................",
+    "........k.....k.................",
+    ".........kkkkk..................",
+    "................................"
+  ];
 
-const PRINCE32_HURT = [
-  "..kk..CCCCCCCC..kk..............",
-  ".kkCJJCCCCCCCCJJCkk.............",
-  ".kCCCCCCCCCCCCCCCCk.............",
-  "..kCCCcCCCCCCCCcCCk.............",
-  "...kkk..kbbbbk..kkk.............",
-  "...k..sSSSSSSSSs..k.............",
-  "..k.SSSSSssssSSSS.k............",
-  "..k.sSse..nn..eSsS.k............",
-  "..k.SSSSSssssSSSS.k............",
-  "..k..sSSSSSSSSSSs..k............",
-  "...k..sooooooooS..k.............",
-  "...k...sooooooS...k.............",
-  "...kk...soooos...kk.............",
-  "....kk...ssss...kk..............",
-  ".....kRk......kRk...............",
-  "...kkggggggggggggkk.............",
-  "..kgGGgggggggggggGGgk...........",
-  ".kgGgGRrRRRRRRrRGgGgk...........",
-  ".kgGgGRrWwEwWrRGgGgk............",
-  ".kgGgGRrwwEwwrRGgGgk............",
-  ".kgGgGRrRRRRRRrRGgGgk............",
-  ".kgGGgggggggggggGGgk.............",
-  "..kggGGgggggggggGGgk............",
-  "...kkGggggggGGgggkk.............",
-  "....kGGGGGGGGGGGGGk.............",
-  ".....kGGGGGGGGGGGk..............",
-  "......kGGGGGGGGGk...............",
-  ".......kkkkkkkkk................",
-  "........k.....k.................",
-  "........k.....k.................",
-  ".........kkkkk..................",
-  "................................"
-];
-
-
-  const SEAL_PAL = { ".": null, "#": "#1b1f24","w":"#ffffff","W":"#e6eef6","g":"#ffd24a","G":"#e0b83e","r":"#d32b2b","R":"#b31f1f" };
-  const SEAL_A = ["..RRRR..",".RrrrrR.","RrRGGrrR","RrG##GrR","RrG##GrR","RrRGGrrR",".RrrrrR.","..RRRR.."];
-  const SEAL_B = ["..RRRR..",".RrrrrR.","RrRGGrrR","RrG#wGrR","RrG#wGrR","RrRGGrrR",".RrrrrR.","..RRRR.."];
+  const SEAL_PAL = {
+    ".": null, "#": "#1b1f24",
+    "w": "#ffffff", "W": "#e6eef6",
+    "g": "#ffd24a", "G": "#e0b83e",
+    "r": "#d32b2b", "R": "#b31f1f"
+  };
+  const SEAL_A = [
+    "..RRRR..",
+    ".RrrrrR.",
+    "RrRGGrrR",
+    "RrG##GrR",
+    "RrG##GrR",
+    "RrRGGrrR",
+    ".RrrrrR.",
+    "..RRRR.."
+  ];
+  const SEAL_B = [
+    "..RRRR..",
+    ".RrrrrR.",
+    "RrRGGrrR",
+    "RrG#wGrR",
+    "RrG#wGrR",
+    "RrRGGrrR",
+    ".RrrrrR.",
+    "..RRRR.."
+  ];
 
   function drawSpriteCharMap(ctx, sprite, pal, x, y, scale = 3){
     const px = scale|0;
@@ -417,7 +488,9 @@ const PRINCE32_HURT = [
     drawSpriteCharMap(ctx, frame, PRINCE_PAL32, sx, sy, scale);
   }
 
-  function createRoyalSeal(x, y, vx, vy){ return { x, y, vx, vy, w: 8, h: 8, t: 0, kind: 'royalSeal' }; }
+  function createRoyalSeal(x, y, vx, vy){
+    return { x, y, vx, vy, w: 8, h: 8, t: 0, kind: 'royalSeal' };
+  }
   function drawRoyalSeal(ctx, seal, scale = 2){
     const frame = (Math.floor(seal.t / 120) % 2 === 0) ? SEAL_A : SEAL_B;
     const px = scale|0;
@@ -526,21 +599,9 @@ const PRINCE32_HURT = [
   }
   function updateLevelHUD(){
     const entry = currentEntry || getCampaignEntry(level);
-    hudLevel.textContent = `${entry.title} (Lv ${String(level).padStart(2,'0')})`;
+    hudLevel.textContent = `LEVEL ${String(level).padStart(2,'0')} - ${entry.title.toUpperCase()}`;
   }
   function updateHighScore(){ hudHigh.textContent = String(highScore).padStart(5,'0'); }
-  function updateBossHUD(value){
-    if (!hudBoss) return;
-    hudBoss.textContent = value;
-  }
-  function refreshBossHUD(){
-    if (!hudBoss) return;
-    if (boss) {
-      hudBoss.textContent = `${String(boss.hp).padStart(2,'0')}/${String(boss.maxHP).padStart(2,'0')}`;
-    } else {
-      hudBoss.textContent = '---';
-    }
-  }
   function setTicker(text){ if (tickerText) tickerText.innerHTML = text; }
   function addScore(n){
     score += n;
@@ -552,11 +613,7 @@ const PRINCE32_HURT = [
     }
   }
   function showBossUI(r=1){ bossLabel.style.display='block'; bossBar.style.display='block'; bossFill.style.transform=`scaleX(${r})`; }
-  function hideBossUI(){
-    bossLabel.style.display='none';
-    bossBar.style.display='none';
-    updateBossHUD('---');
-  }
+  function hideBossUI(){ bossLabel.style.display='none'; bossBar.style.display='none'; }
 
   function triggerGameOver(){
     if (state === 'gameover') return;
@@ -625,11 +682,55 @@ const PRINCE32_HURT = [
   function getLevelParams(lvl){
     const entry = getCampaignEntry(lvl);
     switch(entry.id){
-      case 1: return { rows:4, cols:7, enemyHPBackRow:1, swarmDX:0.32, dropY:10, enemyFireBaseMs:1280, bossHP:36, bossSpeed:BOSSES[entry.boss].speed, maxDepth:210, rowDrop:110, behaviour:{flash:false, diagonalDrop:false, zigzag:false, courier:false} };
-      case 2: return { rows:5, cols:8, enemyHPBackRow:2, swarmDX:0.58, dropY:8, enemyFireBaseMs:1080, bossHP:52, bossSpeed:BOSSES[entry.boss].speed, maxDepth:220, rowDrop:110, behaviour:{flash:true, diagonalDrop:true, diagInterval:[2200,3400], diagStep:5, zigzag:false, courier:false} };
-      case 3: return { rows:5, cols:8, enemyHPBackRow:2, swarmDX:0.7, dropY:8, enemyFireBaseMs:940, bossHP:70, bossSpeed:BOSSES[entry.boss].speed, maxDepth:232, rowDrop:120, behaviour:{flash:true, diagonalDrop:false, zigzag:true, zigzagAmp:8, zigzagSpeed:0.045, courier:false} };
+      case 1:
+        return {
+          rows: 4,
+          cols: 7,
+          enemyHPBackRow: 1,
+          swarmDX: 0.32,
+          dropY: 10,
+          enemyFireBaseMs: 1150,
+          bossHP: 60,
+          bossSpeed: BOSSES[entry.boss].speed,
+          behaviour: { flash:false, diagonalDrop:false, zigzag:false, courier:false }
+        };
+      case 2:
+        return {
+          rows: 5,
+          cols: 8,
+          enemyHPBackRow: 2,
+          swarmDX: 0.58,
+          dropY: 14,
+          enemyFireBaseMs: 920,
+          bossHP: 80,
+          bossSpeed: BOSSES[entry.boss].speed,
+          behaviour: { flash:true, diagonalDrop:true, zigzag:false, courier:false }
+        };
+      case 3:
+        return {
+          rows: 5,
+          cols: 8,
+          enemyHPBackRow: 2,
+          swarmDX: 0.7,
+          dropY: 14,
+          enemyFireBaseMs: 780,
+          bossHP: 100,
+          bossSpeed: BOSSES[entry.boss].speed,
+          behaviour: { flash:true, diagonalDrop:false, zigzag:true, zigzagAmp:8, zigzagSpeed:0.045, courier:false }
+        };
       case 4:
-      default: return { rows:5, cols:8, enemyHPBackRow:3, swarmDX:0.76, dropY:10, enemyFireBaseMs:900, bossHP:88, bossSpeed:BOSSES[entry.boss].speed, maxDepth:238, rowDrop:130, behaviour:{flash:true, diagonalDrop:false, zigzag:false, courier:true} };
+      default:
+        return {
+          rows: 5,
+          cols: 8,
+          enemyHPBackRow: 3,
+          swarmDX: 0.76,
+          dropY: 16,
+          enemyFireBaseMs: 720,
+          bossHP: 120,
+          bossSpeed: BOSSES[entry.boss].speed,
+          behaviour: { flash:true, diagonalDrop:false, zigzag:false, courier:true }
+        };
     }
   }
 
@@ -650,7 +751,6 @@ const PRINCE32_HURT = [
     applyPalette(currentEntry);
     currentSubject = nextSubject(currentEntry);
     updateLevelHUD();
-    updateBossHUD('---');
     spawnWave(level);
     updateHearts();
     updateCapacity();
@@ -659,7 +759,7 @@ const PRINCE32_HURT = [
     princeFX = null;
     state='play';
     keys = {};
-    setTicker(`${currentEntry.title.toUpperCase()} - ${currentSubject.toUpperCase()}`);
+    setTicker(`LEVEL ${String(level).padStart(2,'0')} - ${currentEntry.title.toUpperCase()} - ${currentSubject.toUpperCase()}`);
     lastTime = performance.now();
     requestAnimationFrame(loop);
   }
@@ -686,7 +786,7 @@ const PRINCE32_HURT = [
     state='play';
     keys = {};
     princeFX = null;
-    setTicker(`${entry.title.toUpperCase()} - ${currentSubject.toUpperCase()}`);
+    setTicker(`LEVEL ${String(level).padStart(2,'0')} - ${entry.title.toUpperCase()} - ${currentSubject.toUpperCase()}`);
     lastTime = performance.now();
     requestAnimationFrame(loop);
   }
@@ -701,13 +801,6 @@ const PRINCE32_HURT = [
 
     const p = getLevelParams(lvl);
     const behaviour = p.behaviour || {};
-    const diagRangeSrc = behaviour.diagInterval;
-    const diagRange = (Array.isArray(diagRangeSrc) && diagRangeSrc.length >= 2)
-      ? [Number(diagRangeSrc[0]) || 900, Number(diagRangeSrc[1]) || 1800]
-      : [900, 1800];
-    const diagStepDefault = (typeof behaviour.diagStep === 'number') ? behaviour.diagStep : p.dropY;
-    const maxDepth = p.maxDepth ?? (H - 200);
-    const rowDropAllowance = p.rowDrop ?? 140;
     const gapX = 6, gapY = 10;
     const ew = 34, eh = 20;
     const waveWidth = p.cols*ew + (p.cols-1)*gapX;
@@ -723,17 +816,13 @@ const PRINCE32_HURT = [
           y: startY + r*(eh+gapY),
           baseY: startY + r*(eh+gapY),
           w: ew, h: eh,
+          dir: 1,
           hp: 1 + (r>2?Math.min(1+p.enemyHPBackRow,3):0),
           color: (r % 2 === 0) ? primary : secondary,
           flash: behaviour.flash ? 0 : null,
           courier: behaviour.courier && r === 0 && (c % 2 === 0),
-          diagTimer: behaviour.diagonalDrop ? diagRange[0] + Math.random() * Math.max(0, diagRange[1] - diagRange[0]) : 0,
-          diagMin: diagRange[0],
-          diagMax: diagRange[1],
-          diagStep: diagStepDefault,
+          diagTimer: behaviour.diagonalDrop ? 800 + Math.random()*800 : 0,
           diagDir: Math.random() < 0.5 ? -1 : 1,
-          lifeDropped: false,
-          maxY: Math.min(maxDepth, startY + r*(eh+gapY) + rowDropAllowance),
           zigzagPhase: behaviour.zigzag ? Math.random()*Math.PI*2 : 0,
           zigzagAmp: behaviour.zigzagAmp || 0,
           zigzagSpeed: behaviour.zigzagSpeed || 0
@@ -744,7 +833,6 @@ const PRINCE32_HURT = [
     swarm = {
       list,
       dx: p.swarmDX,
-      dir: 1,
       dropY: p.dropY,
       leftBound: 12,
       rightBound: W-12,
@@ -753,9 +841,7 @@ const PRINCE32_HURT = [
       behaviour,
       entry: currentEntry,
       subject: currentSubject,
-      maxDepth,
       bossSpec: {
-        entryId: currentEntry.id,
         hp: p.bossHP,
         speed: p.bossSpeed,
         kind: bossDef.id,
@@ -771,11 +857,9 @@ const PRINCE32_HURT = [
     const def = BOSSES[spec.kind] || BOSSES.prince;
     currentBossDef = def;
     const size = def.size || { w: 180, h: 90 };
-    const targetY = spec.targetY || def.approachY || 110;
-    const approachSpeed = spec.approachSpeed || def.approachSpeed || 0.055;
     boss = {
       x: W/2 - size.w/2,
-      y: -size.h,
+      y: 68,
       w: size.w,
       h: size.h,
       dir: 1,
@@ -788,13 +872,9 @@ const PRINCE32_HURT = [
       name: def.displayName,
       color: spec.color || def.color,
       accent: spec.accent || def.accent,
-      def,
-      targetY,
-      descendSpeed: approachSpeed,
-      approach: true
+      def
     };
     bossLabel.textContent = def.displayName;
-    refreshBossHUD();
     showBossUI(1);
     setTicker(`${def.displayName} - ${def.tagline}`);
   }
@@ -809,13 +889,6 @@ const PRINCE32_HURT = [
     enemyBullets = [];
     bullets = [];
     const def = BOSSES[spec.kind] || BOSSES.prince;
-    if (spec.entryId === 3){
-      pendingBossSpec = null;
-      elBossIntro.style.display = 'none';
-      state = 'play';
-      spawnBoss(spec);
-      return;
-    }
     bossIntroTitle.textContent = def.displayName;
     bossIntroName.textContent = def.tagline;
     elBossIntro.style.display = 'flex';
@@ -912,6 +985,7 @@ const PRINCE32_HURT = [
     ctx.bezierCurveTo(x + size*0.15, y, x, y + size*0.6, x + size/2, y + size);
     ctx.fill();
   }
+
   function drawCoinProjectile(ctx, proj){
     const size = proj.size || 10;
     const radius = size/2;
@@ -927,6 +1001,7 @@ const PRINCE32_HURT = [
     ctx.arc(x, y, radius * 0.6, 0, Math.PI*2);
     ctx.stroke();
   }
+
   function drawPhishProjectile(ctx, proj){
     const w = proj.w || 10;
     const h = proj.h || 12;
@@ -943,6 +1018,7 @@ const PRINCE32_HURT = [
     ctx.lineTo(x + w, y);
     ctx.stroke();
   }
+
   function drawSpreadProjectile(ctx, proj){
     const w = proj.w || 6;
     const h = proj.h || 12;
@@ -958,8 +1034,9 @@ const PRINCE32_HURT = [
     ctx.fill();
   }
 
-  function spawnVPNPowerUp(x, y){ powerUps.push({ x: x - 10, y, w: 20, h: 12, vy: 1.5, glow: 0, type: 'vpn' }); }
-  function spawnLifeDiamond(x, y){ powerUps.push({ x: x - 9, y, w: 18, h: 18, vy: 1.25, glow: 0, type: 'life' }); }
+  function spawnVPNPowerUp(x, y){
+    powerUps.push({ x: x - 10, y, w: 20, h: 12, vy: 1.5, glow: 0, type: 'vpn' });
+  }
 
   function updatePowerUps(dt, frameScale){
     powerUps = powerUps.filter(p => {
@@ -967,25 +1044,10 @@ const PRINCE32_HURT = [
       p.glow = (p.glow + dt * 0.01) % (Math.PI * 2);
       if (p.y > H + 24) return false;
       if (player && player.hp > 0 && rectsOverlap(p, player) && (player.invuln || 0) <= 0){
-        if (p.type === 'vpn'){
-          inbox = clamp(inbox + 0.6, 0, 1);
-          updateCapacity();
-          player.invuln = Math.max(player.invuln || 0, 1800);
-          setTicker('VPN SHIELD ONLINE  -  INBOX HARDENED');
-        } else if (p.type === 'life'){
-          let msg = 'LIFE DIAMOND  -  SHIELD BOOST';
-          if (player.hp < playerBase.maxHP){
-            player.hp = Math.min(playerBase.maxHP, player.hp + 1);
-            updateHearts();
-            msg = 'LIFE DIAMOND ACQUIRED  -  EXTRA HEART';
-            addScore(40);
-          } else {
-            inbox = clamp(inbox + 0.45, 0, 1);
-            updateCapacity();
-            addScore(20);
-          }
-          setTicker(msg);
-        }
+        inbox = clamp(inbox + 0.6, 0, 1);
+        updateCapacity();
+        player.invuln = Math.max(player.invuln || 0, 1800);
+        setTicker('VPN SHIELD ONLINE  -  INBOX HARDENED');
         return false;
       }
       return true;
@@ -995,193 +1057,106 @@ const PRINCE32_HURT = [
   function drawPowerUps(){
     for (const p of powerUps){
       const pulse = 0.6 + 0.3 * Math.sin(p.glow || 0);
-      if (p.type === 'life'){
-        ctx.beginPath();
-        ctx.moveTo(p.x + p.w/2, p.y);
-        ctx.lineTo(p.x + p.w, p.y + p.h/2);
-        ctx.lineTo(p.x + p.w/2, p.y + p.h);
-        ctx.lineTo(p.x, p.y + p.h/2);
-        ctx.closePath();
-        ctx.fillStyle = `rgba(255, 255, 180, ${0.7 + 0.2 * pulse})`;
-        ctx.fill();
-        ctx.strokeStyle = `rgba(255, 215, 120, ${0.9})`;
-        ctx.lineWidth = 1.4;
-        ctx.stroke();
-      } else {
-        ctx.fillStyle = `rgba(120, 255, 230, ${pulse})`;
-        ctx.beginPath();
-        ctx.moveTo(p.x + p.w/2, p.y);
-        ctx.lineTo(p.x + p.w, p.y + p.h/2);
-        ctx.lineTo(p.x + p.w/2, p.y + p.h);
-        ctx.lineTo(p.x, p.y + p.h/2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(20,60,70,0.8)';
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-      }
+      ctx.fillStyle = `rgba(120, 255, 230, ${pulse})`;
+      ctx.beginPath();
+      ctx.moveTo(p.x + p.w/2, p.y);
+      ctx.lineTo(p.x + p.w, p.y + p.h/2);
+      ctx.lineTo(p.x + p.w/2, p.y + p.h);
+      ctx.lineTo(p.x, p.y + p.h/2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(20,60,70,0.8)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
     }
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#000';
   }
 
-  function bossFire(dt) {
+  function bossFire(dt){
     if (!boss) return;
     boss.fire -= dt;
-    if (boss.fire <= 0) {
-      const cx = boss.x + boss.w / 2;
+    if (boss.fire <= 0){
+      const cx = boss.x + boss.w/2;
       const cy = boss.y + boss.h;
       const def = boss.def || BOSSES.prince;
-      const hpRatio = boss.hp / boss.maxHP;
-      let cooldown = clamp(560 - level * 16, 340, 640);
-
-      if (boss.type === 'coinlord') {
-        const streams = hpRatio > 0.65 ? 3 : hpRatio > 0.35 ? 5 : 6;
-        const spreadWidth = boss.w - (hpRatio > 0.35 ? 32 : 20);
-        const baseVy = hpRatio > 0.65 ? 2.5 : hpRatio > 0.35 ? 2.9 : 3.3;
-        const wobble = hpRatio > 0.35 ? 0.45 : 0.7;
-        for (let i = 0; i < streams; i++) {
-          const offset = streams === 1 ? 0 : (i / (streams - 1) - 0.5) * spreadWidth;
-          enemyBullets.push({
-            x: boss.x + boss.w / 2 + offset,
-            y: cy - 6,
-            size: 12,
-            w: 12, h: 12,
-            vx: (Math.random() - 0.5) * wobble,
-            vy: baseVy + Math.random() * 0.6,
-            kind: 'coin',
-            color: def.color
-          });
-        }
-        cooldown = hpRatio > 0.65 ? 620 : hpRatio > 0.35 ? 520 : 440;
-        boss.fire = cooldown;
-        return;
-      }
-
-      if (boss.type === 'prince') {
-        if (hpRatio < 0.2) {
-          const spokes = 5;
-          for (let i = 0; i < spokes; i++) {
-            const angle = (i / spokes) * Math.PI * 2;
-            enemyBullets.push({
-              x: cx - 3,
-              y: cy - 3,
-              w: 6, h: 6,
-              vx: Math.cos(angle) * 1.9,
-              vy: Math.sin(angle) * 1.9,
-              kind: 'royalSpark',
-              color: '#ffd24a'
-            });
-          }
-          cooldown = 420;
-        } else if (hpRatio < 0.45) {
-          const startY = boss.y + boss.h - 10;
-          const spawnSeal = (vx) => {
-            const seal = createRoyalSeal(cx - 4, startY, vx, 3.1);
-            seal.scale = 2;
-            enemyBullets.push(seal);
-          };
-          spawnSeal(-1.0);
-          spawnSeal(0);
-          spawnSeal(1.0);
-          cooldown = 480;
-        } else if (hpRatio < 0.75) {
-          const startY = boss.y + boss.h - 6;
-          const spawnSeal = (vx) => {
-            const seal = createRoyalSeal(cx - 4, startY, vx, 2.8);
-            seal.scale = 2;
-            enemyBullets.push(seal);
-          };
-          spawnSeal(-0.9);
-          spawnSeal(0);
-          spawnSeal(0.9);
-          cooldown = 500;
-        } else {
-          const seal = createRoyalSeal(cx - 4, boss.y + boss.h - 6, 0, 2.6);
-          seal.scale = 2;
-          enemyBullets.push(seal);
-          cooldown = 520;
-        }
-        boss.fire = cooldown;
-        return;
-      }
-
-      switch (def.attack) {
+      let cooldown = clamp(420 - level*20, 240, 520);
+      switch(def.attack){
         case 'heartFan': {
-          const offsets = [-1, 0, 1];
+          const offsets = [-1.5, -0.8, 0, 0.8, 1.5];
           offsets.forEach((off, i) => {
             enemyBullets.push({
               x: cx - 6,
               y: cy - 6,
               size: 14,
-              w: 14, h: 14,
-              vx: off * 0.9,
-              vy: 2.6 + i * 0.05,
+              w:14, h:14,
+              vx: off * 1.2,
+              vy: 3.2 + i*0.05,
               kind: 'heart',
               color: def.color
             });
           });
-          cooldown = 620;
+          cooldown = 520;
           break;
         }
         case 'aimedShot': {
-          if (player) {
-            const px = player.x + player.w / 2;
-            const py = player.y + player.h / 2;
+          if (player){
+            const px = player.x + player.w/2;
+            const py = player.y + player.h/2;
             const dx = px - cx;
             const dy = py - cy;
             const mag = Math.hypot(dx, dy) || 1;
-            const speed = 3.2;
+            const speed = 4.4;
             enemyBullets.push({
               x: cx - 4,
               y: cy - 6,
-              w: 8, h: 14,
+              w:8, h:14,
               vx: (dx / mag) * speed,
               vy: (dy / mag) * speed,
               kind: 'phish',
               color: def.color
             });
           }
-          cooldown = 560;
+          cooldown = 440;
           break;
         }
         case 'coinRain': {
-          const streams = 4;
-          for (let i = 0; i < streams; i++) {
-            const offset = (i / (streams - 1) - 0.5) * (boss.w - 20);
+          const streams = 6;
+          for (let i=0;i<streams;i++){
+            const offset = (i/(streams-1) - 0.5) * (boss.w - 20);
             enemyBullets.push({
-              x: boss.x + boss.w / 2 + offset,
+              x: boss.x + boss.w/2 + offset,
               y: cy - 4,
               size: 12,
-              w: 12, h: 12,
-              vx: (Math.random() - 0.5) * 0.35,
-              vy: 2.6 + Math.random() * 0.6,
+              w:12, h:12,
+              vx: (Math.random()-0.5) * 0.6,
+              vy: 3.4 + Math.random()*0.8,
               kind: 'coin',
               color: def.color
             });
           }
-          cooldown = 620;
+          cooldown = 500;
           break;
         }
         case 'royalSeal': {
+          const base = 3.6 + Math.min(level*0.15, 2);
           const startY = boss.y + boss.h - 6;
-          const base = 2.6 + Math.min(level * 0.1, 1.3);
           const spawnSeal = (vx) => {
             const seal = createRoyalSeal(cx - 4, startY, vx, base);
             seal.scale = 2;
             enemyBullets.push(seal);
           };
           spawnSeal(0);
-          spawnSeal(-0.9);
-          spawnSeal(0.9);
-          cooldown = clamp(500 - level * 14, 320, 520);
+          spawnSeal(-1.1);
+          spawnSeal(1.1);
+          cooldown = clamp(420 - level*18, 260, 420);
           break;
         }
         default: {
-          const base = 2.6 + Math.min(level * 0.06, 1.0);
-          enemyBullets.push({ x: cx - 2, y: cy, w: 4, h: 10, vy: base, vx: 0, color: def.color, kind: 'spam' });
-          enemyBullets.push({ x: cx - 2, y: cy, w: 4, h: 10, vy: base, vx: -1.1, color: def.color, kind: 'spam' });
-          enemyBullets.push({ x: cx - 2, y: cy, w: 4, h: 10, vy: base, vx: 1.1, color: def.color, kind: 'spam' });
+          const base = 3.4 + Math.min(level*0.1, 1.5);
+          enemyBullets.push({x:cx-2, y:cy, w:4, h:10, vy: base, vx:0, color:def.color, kind:'spam'});
+          enemyBullets.push({x:cx-2, y:cy, w:4, h:10, vy: base, vx:-1.4, color:def.color, kind:'spam'});
+          enemyBullets.push({x:cx-2, y:cy, w:4, h:10, vy: base, vx:1.4, color:def.color, kind:'spam'});
         }
       }
       boss.fire = cooldown;
@@ -1189,10 +1164,8 @@ const PRINCE32_HURT = [
   }
 
   function loop(t){
-    const dt = Math.min(50, t - lastTime);
-    lastTime = t;
-
-    if (state !== 'play'){
+    const dt = Math.min(50, t-lastTime); lastTime = t;
+    if (state!=='play'){
       updateDeathBurst(princeFX, dt);
       if (princeFX && !princeFX.alive) princeFX = null;
       if (princeFX && princeFX.alive){
@@ -1201,15 +1174,13 @@ const PRINCE32_HURT = [
       }
       return;
     }
-
     const frameScale = dt / 16.67;
 
-    if (keys['ArrowLeft']) player.x -= player.speed * frameScale;
+    if (keys['ArrowLeft'])  player.x -= player.speed * frameScale;
     if (keys['ArrowRight']) player.x += player.speed * frameScale;
     if (keys['Space']) shootPlayer();
     player.cooldown = Math.max(0, player.cooldown - frameScale);
-    player.invuln = Math.max(0, (player.invuln || 0) - dt);
-    player.x = clamp(player.x, 8, W - 8 - player.w);
+    player.x = clamp(player.x, 8, W-8-player.w);
 
     for (const b of bullets) b.y += b.vy * frameScale;
     bullets = bullets.filter(b => b.y + b.h > 0);
@@ -1218,70 +1189,48 @@ const PRINCE32_HURT = [
       eb.y += eb.vy * frameScale;
       eb.x += (eb.vx || 0) * frameScale;
       if (eb.kind === 'royalSeal') eb.t = (eb.t || 0) + dt;
-      if (eb.y > H - 40) eb.y = H + 999;
+      if (eb.y > H-40){
+        damageInbox(0.02);
+        eb.y = H+999;
+      }
     }
-    enemyBullets = enemyBullets.filter(eb => eb.y < H + 20);
-
-    updatePowerUps(dt, frameScale);
+    enemyBullets = enemyBullets.filter(eb => eb.y < H+20);
 
     if (swarm.list.length){
       const behaviour = swarm.behaviour || {};
-      if (typeof swarm.dir !== 'number' || !swarm.dir) swarm.dir = 1;
-      const stepX = swarm.dx * swarm.dir * frameScale;
       let hitEdge = false;
-      const clampEnemyX = (enemy) => {
-        if (enemy.x <= swarm.leftBound){
-          enemy.x = swarm.leftBound;
-          hitEdge = true;
-        } else if (enemy.x + enemy.w >= swarm.rightBound){
-          enemy.x = swarm.rightBound - enemy.w;
-          hitEdge = true;
-        }
-      };
       for (const e of swarm.list){
         if (behaviour.zigzag){
           e.zigzagPhase += (e.zigzagSpeed || 0.045) * dt;
           e.y = e.baseY + Math.sin(e.zigzagPhase) * (e.zigzagAmp || 6);
         }
-        e.x += stepX;
-        clampEnemyX(e);
+        e.x += swarm.dx * e.dir * frameScale;
         if (behaviour.diagonalDrop){
           e.diagTimer -= dt;
           if (e.diagTimer <= 0){
-            const min = (typeof e.diagMin === 'number') ? e.diagMin : 900;
-            const max = (typeof e.diagMax === 'number') ? e.diagMax : 1800;
-            const span = Math.max(0, max - min);
-            e.diagTimer = min + Math.random() * span;
-            e.x += 8 * e.diagDir;
-            const dropStep = (typeof e.diagStep === 'number') ? e.diagStep : swarm.dropY;
-            const floorLimit = player ? (player.y - e.h - 48) : (H - 110);
-            const clampLimit = Math.min(floorLimit, e.maxY ?? floorLimit);
-            const nextY = Math.min(e.y + dropStep, clampLimit);
-            const appliedDrop = Math.max(0, nextY - e.y);
-            e.y = nextY;
-            e.baseY += appliedDrop;
-            if (appliedDrop === 0 && e.y >= clampLimit) {
-              e.baseY = clampLimit;
-            }
-            e.diagDir *= -1;
-            clampEnemyX(e);
+            e.diagTimer = 900 + Math.random()*900;
+            e.x += 16 * e.diagDir;
+            e.y += swarm.dropY;
+            e.baseY += swarm.dropY;
           }
         }
-        if (e.flash && e.flash > 0) e.flash = Math.max(0, e.flash - dt);
+        if (e.flash && e.flash > 0){
+          e.flash = Math.max(0, e.flash - dt);
+        }
         e.x = clamp(e.x, swarm.leftBound, swarm.rightBound - e.w);
+        if (e.x < swarm.leftBound || e.x + e.w > swarm.rightBound) hitEdge = true;
       }
       if (hitEdge){
-        swarm.dir *= -1;
         for (const e of swarm.list){
-          const floorLimit = player ? (player.y - e.h - 48) : (H - 110);
-          const drop = Math.min(swarm.dropY, Math.max(0, floorLimit - e.y));
-          e.y += drop;
-          e.baseY += drop;
-          if (behaviour.zigzag) e.baseY = e.y;
-          if (drop === 0 && e.y >= floorLimit){
-            e.baseY = floorLimit;
+          e.dir *= -1;
+          e.y += swarm.dropY;
+          e.baseY += swarm.dropY;
+          if (behaviour.zigzag){
+            e.baseY = e.y;
           }
-          e.x = clamp(e.x, swarm.leftBound, swarm.rightBound - e.w);
+          if (e.y + e.h >= player.y){
+            damageInbox(0.12);
+          }
         }
       }
       enemyTryShoot(dt);
@@ -1290,24 +1239,14 @@ const PRINCE32_HURT = [
     }
 
     if (boss){
-      if (boss.approach){
-        const step = (boss.descendSpeed || 0.055) * dt;
-        boss.y = Math.min(boss.y + step, boss.targetY);
-        if (boss.y >= boss.targetY){
-          boss.y = boss.targetY;
-          boss.approach = false;
-          boss.fire = Math.max(boss.fire, 720);
-        }
-      } else {
-        boss.x += boss.speed * boss.dir * frameScale;
-        if (boss.x < 16 || boss.x + boss.w > W - 16) boss.dir *= -1;
-        bossFire(dt);
-      }
-      bossFill.style.transform = `scaleX(${boss.hp / boss.maxHP})`;
+      boss.x += boss.speed * boss.dir * frameScale;
+      if (boss.x < 16 || boss.x + boss.w > W-16) boss.dir *= -1;
+      bossFire(dt);
+      bossFill.style.transform = `scaleX(${boss.hp/boss.maxHP})`;
       boss.hurt = Math.max(0, (boss.hurt || 0) - dt);
     }
 
-    if (swarm.list.length && player.hp > 0 && (player.invuln || 0) <= 0){
+    if (swarm.list.length && player.hp > 0){
       for (const e of swarm.list){
         if (rectsOverlap(e, player)){
           forceShieldBreak();
@@ -1315,69 +1254,49 @@ const PRINCE32_HURT = [
         }
       }
     }
-    if (boss && player.hp > 0 && (player.invuln || 0) <= 0 && rectsOverlap(boss, player)){
+    if (boss && player.hp > 0 && rectsOverlap(boss, player)){
       forceShieldBreak();
     }
 
     for (const b of bullets){
       for (const e of swarm.list){
-        if (rectsOverlap(b, e)){
-          e.hp--;
-          b.y = -9999;
-          if (e.hp <= 0){
-            if (!e.lifeDropped){
-              e.lifeDropped = true;
-              spawnLifeDiamond(e.x + e.w/2, e.y + e.h/2);
-            }
-            e.dead = true;
-            if (currentEntry && currentEntry.id === 2 && Math.random() < 0.12){
-              spawnVPNPowerUp(e.x + e.w/2, e.y);
-            }
-            addScore(20);
-          }
+        if (rectsOverlap(b,e)){
+          e.hp--; b.y = -9999;
+          if (e.hp<=0){ e.dead = true; addScore(20); }
         }
       }
-      if (boss && rectsOverlap(b, boss)){
-        boss.hp--;
-        b.y = -9999;
+      if (boss && rectsOverlap(b,boss)){
+        boss.hp--; b.y = -9999;
         boss.hurt = 160;
         addScore(5);
-        refreshBossHUD();
       }
     }
     swarm.list = swarm.list.filter(e => !e.dead);
 
     for (const eb of enemyBullets){
-      if (rectsOverlap(eb, player) && (player.invuln || 0) <= 0){
-        eb.y = H + 999;
+      if (rectsOverlap(eb, player)){
+        eb.y = H+999;
         damageInbox(0.34);
       }
     }
-
     if (boss && boss.hp <= 0){
       clearBossIntro();
       const defeatedBoss = boss;
       if (defeatedBoss.type === 'prince'){
         princeFX = spawnPrinceDeathBurst(defeatedBoss.x + defeatedBoss.w/2, defeatedBoss.y + defeatedBoss.h/2, 3);
       }
-      boss = null;
-      hideBossUI();
-      state = 'interstitial';
+      boss=null; hideBossUI();
+      state='interstitial';
       elCleared.querySelector('h1').textContent = `[ INBOX SECURED ]`;
       elCleared.querySelector('p').textContent = 'The Prince has been unsubscribed. System rebooting..';
-      elCleared.style.display = 'flex';
+      elCleared.style.display='flex';
       setTicker('INBOX SECURED  -  SYSTEM REBOOTING');
       const currentLevel = level;
-      setTimeout(() => {
-        if (state === 'interstitial' && currentLevel === level){
+      setTimeout(()=>{
+        if (state==='interstitial' && currentLevel===level){
           nextLevel();
         }
       }, 1500);
-      return;
-    }
-
-    if (inbox <= 0 || player.hp <= 0){
-      triggerGameOver();
       return;
     }
 
@@ -1402,103 +1321,52 @@ const PRINCE32_HURT = [
   }
   function drawSwarm(){
     for (const e of swarm.list){
-      const flashing = e.flash && e.flash > 0;
-      ctx.fillStyle = flashing ? '#ff5d5d' : e.color;
+      ctx.fillStyle = e.color;
       ctx.fillRect(e.x, e.y, e.w, e.h);
-      ctx.fillStyle = flashing ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.25)';
-      ctx.fillRect(e.x + 3, e.y + 3, e.w - 6, e.h - 6);
-
-      if (e.courier){
-        ctx.fillStyle = '#ffe6b5';
-        ctx.fillRect(e.x + 6, e.y + 4, e.w - 12, e.h - 10);
-        ctx.strokeStyle = '#d46a1f';
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        ctx.moveTo(e.x + 6, e.y + 4);
-        ctx.lineTo(e.x + e.w / 2, e.y + e.h / 2);
-        ctx.lineTo(e.x + e.w - 6, e.y + 4);
-        ctx.stroke();
-        ctx.lineWidth = 1;
-      }
+      ctx.fillStyle = 'rgba(0,0,0,.25)';
+      ctx.fillRect(e.x+3, e.y+3, e.w-6, e.h-6);
     }
-    ctx.strokeStyle = '#000';
   }
   function drawBoss(animTime){
     if (!boss) return;
     if (boss.type === 'prince'){
       renderPrinceBoss32(ctx, boss, animTime, boss.hurt || 0, 3);
     } else {
-      const def = boss.def || {};
-      const x = boss.x, y = boss.y, w = boss.w, h = boss.h;
-      ctx.fillStyle = boss.color || '#ffd24a';
-      ctx.fillRect(x, y, w, h);
-      ctx.strokeStyle = boss.accent || '#0f1a1f';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(x + 2, y + 2, w - 4, h - 4);
-
-      switch (def.id){
-        case 'influencer':
-          drawHeartProjectile(ctx, { x: x + w/2 - 8, y: y + 8, size: 16, color: boss.accent || '#ffffff' });
-          drawHeartProjectile(ctx, { x: x + w/2 - 30, y: y + 20, size: 12, color: boss.accent || '#ffffff' });
-          drawHeartProjectile(ctx, { x: x + w/2 + 10, y: y + 20, size: 12, color: boss.accent || '#ffffff' });
-          break;
-        case 'phishmaster':
-          ctx.fillStyle = '#fff2dd';
-          ctx.fillRect(x + 18, y + 24, w - 36, h - 48);
-          ctx.strokeStyle = boss.accent || '#ff8a33';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.rect(x + 18, y + 24, w - 36, h - 48);
-          ctx.moveTo(x + 18, y + 24);
-          ctx.lineTo(x + w/2, y + h/2);
-          ctx.lineTo(x + w - 18, y + 24);
-          ctx.stroke();
-          break;
-        case 'coinlord':
-          for (let i = 0; i < 4; i++){
-            const size = 16;
-            const offset = (i / 3 - 0.5) * (w - 40);
-            drawCoinProjectile(ctx, { x: x + w/2 + offset - size/2, y: y + 18, size, color: boss.accent || '#ff00aa' });
-          }
-          break;
-        default:
-          ctx.fillStyle = boss.accent || '#111416';
-          ctx.fillRect(x + w/2 - 30, y + 8, 60, 16);
+      ctx.fillStyle = 'rgba(255,223,75,1)';
+      ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(boss.x + boss.w/2 - 30, boss.y - 12, 60, 12);
+      for (let i=0;i<5;i++){
+        ctx.beginPath();
+        ctx.moveTo(boss.x + boss.w/2 - 26 + i*13, boss.y - 12);
+        ctx.lineTo(boss.x + boss.w/2 - 20 + i*13, boss.y - 24);
+        ctx.lineTo(boss.x + boss.w/2 - 14 + i*13, boss.y - 12);
+        ctx.closePath(); ctx.fill();
       }
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#000';
     }
   }
-  function drawBullets(){ ctx.fillStyle = '#ff6b6b'; for (const b of bullets) ctx.fillRect(b.x, b.y, b.w, b.h); }
+  function drawBullets(){ ctx.fillStyle='#ff6b6b'; for (const b of bullets) ctx.fillRect(b.x,b.y,b.w,b.h); }
   function drawEnemyBullets(){
+    ctx.fillStyle='#9ad0ff';
     for (const eb of enemyBullets){
-      switch (eb.kind){
-        case 'royalSeal': drawRoyalSeal(ctx, eb, eb.scale || 2); break;
-        case 'heart':     drawHeartProjectile(ctx, eb); break;
-        case 'coin':      drawCoinProjectile(ctx, eb); break;
-        case 'phish':     drawPhishProjectile(ctx, eb); break;
-        case 'spread':    drawSpreadProjectile(ctx, eb); break;
-        case 'royalSpark': ctx.fillStyle = eb.color || '#ffd24a'; ctx.fillRect(eb.x, eb.y, eb.w || 6, eb.h || 6); break;
-        default:          ctx.fillStyle = eb.color || '#9ad0ff'; ctx.fillRect(eb.x, eb.y, eb.w, eb.h);
+      if (eb.kind === 'royalSeal'){
+        drawRoyalSeal(ctx, eb, eb.scale || 2);
+      } else {
+        ctx.fillRect(eb.x,eb.y,eb.w,eb.h);
       }
     }
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#000';
-    ctx.globalAlpha = 1;
   }
-
   function render(){
     clear();
     const animTime = performance.now();
     drawSwarm();
     drawBoss(animTime);
-    drawPowerUps();
     drawEnemyBullets();
     drawBullets();
     drawPlayer();
     if (princeFX && princeFX.alive) drawDeathBurst(ctx, princeFX);
-    ctx.fillStyle = 'rgba(109,255,151,.1)';
-    ctx.fillRect(0, player.y + player.h + 2, W, 1);
+    ctx.fillStyle='rgba(109,255,151,.1)';
+    ctx.fillRect(0, player.y+player.h+2, W, 1);
   }
 })();
 </script>

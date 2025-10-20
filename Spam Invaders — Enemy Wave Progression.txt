@@ -1,72 +1,178 @@
-🪐 Spam Invaders — Enemy Wave Progression
-LEVEL 1 — Clickbait Cloud (⭐ Low Annoyance)
+🪐 Spam Invaders — Full Campaign Progression
+🟢 LEVEL 1 — CLICKBAIT CLOUD (⭐ Low Annoyance)
 
-Tone: harmless, funny, tutorial-speed enemies
-Palette: light cyan / mint
-Subjects:
+Tone: Harmless, funny, tutorial-speed spam.
+Palette: Light cyan / mint with pop-ad pink flashes.
+
+Enemy Subjects:
 
 “Singles In Your Area.exe”
 
 “Guaranteed Weight Loss (No Effort Required)”
 
 “5% Off Something Stupid”
-Notes:
 
-Slow drift left–right, minimal return fire.
+Enemy Behavior:
 
-Ideal intro to teach controls and timing.
+Slow left-right drift.
 
-LEVEL 2 — Phishing Swarm (⭐⭐ Mid Annoyance)
+Minimal return fire.
 
-Tone: office anxiety, fake urgency
-Palette: amber / warning orange
-Subjects:
+Great for teaching controls & pacing.
+
+💾 Boss: 🟢 INFLUENCER.EXE
+
+Subject: “Singles In Your Area”
+
+Role: Weaponized clickbait.
+
+Attack: Short burst-fan of heart-emoji bolts.
+
+Tone Cue: Neon pink + white UI spam; upbeat chiptune remix.
+
+Tagline: “Smash that subscribe button or perish.”
+
+🟠 LEVEL 2 — PHISHING SWARM (⭐⭐ Mid Annoyance)
+
+Tone: Office anxiety, fake urgency.
+Palette: Amber / warning orange with red flashes.
+
+Enemy Subjects:
 
 “Urgent Invoice Attached!”
 
 “Re: Re: Re: Final Notice”
 
 “Free Vacation Voucher (Limited Time!)”
-Notes:
 
-Faster horizontal march, occasional diagonal drop.
+Enemy Behavior:
 
-Emails “flash red” before shooting back.
+Faster horizontal march, occasional diagonal drops.
 
-Adds first power-up drops (VPN Shield).
+Enemies flash red before firing.
 
-LEVEL 3 — Crypto Carnage (🔥 High Annoyance)
+Introduces VPN Shield power-up.
 
-Tone: loud, neon greed
-Palette: toxic green / magenta
-Subjects:
+💾 Boss: 🟠 PHISHMASTER 3000
+
+Subject: “Urgent Invoice Attached”
+
+Role: Corporate deception AI.
+
+Attack: Simple aimed shot at player cursor.
+
+Tone Cue: Amber warning lights, printer-jam SFX, anxious tempo.
+
+Tagline: “Your credentials are my currency.”
+
+🔵 LEVEL 3 — CRYPTO CARNAGE (🔥 High Annoyance)
+
+Tone: Loud, greedy, neon chaos.
+Palette: Toxic green / magenta strobe.
+
+Enemy Subjects:
 
 “Crypto Goes 1000× Tonight!!!”
 
 “Exclusive NFT Opportunity”
-Notes:
 
-Enemies zig-zag like glitchy market charts.
+Enemy Behavior:
 
-New bullet type: “Pump-n-Dump” spreads.
+Zig-zag movement like glitchy market charts.
 
-Introduce mid-boss: CoinLord .v3 (gold cube that fires random memecoins).
+New bullet type: Pump-n-Dump spreads.
 
-LEVEL 4 — Royal Scam (🔥🔥🔥 Boss Stage)
+Mid-boss transitions directly into the main fight.
 
-Tone: theatrical, dangerous calm before chaos
-Palette: royal gold / crimson
-Subject:
+💾 Boss: 🔵 COINLORD .v3
+
+Subject: “Crypto Goes 1000x Tonight”
+
+Role: Greed algorithm manifested.
+
+Attack: Simple coin-rain — vertical streams of falling tokens.
+
+Tone Cue: Flashing green / magenta; electronic “coin drop” sounds.
+
+Tagline: “In volatility we trust.”
+
+🟣 LEVEL 4 — ROYAL SCAM (🔥🔥🔥 Final Stage)
+
+Tone: Theatrical, manipulative calm before catastrophe.
+Palette: Royal gold / crimson glitch.
+
+Enemy Subjects:
 
 “Prince Requests Your Aid (Re: Inheritance Transfer)”
-Notes:
 
-Mini wave of “Courier Bots” precedes main event.
+Enemy Behavior:
 
-Final boss: Nigerian Prince AI v7.3
+Mini wave of “Courier Bots” (fake emails carrying seals).
 
-Sprays “Urgent Message” projectiles (royal seals).
+Builds tension before boss entry.
 
-3 phases: normal → glitch → meltdown → crown burst.
+💾 Final Boss: 🟣 NIGERIAN PRINCE AI v7.3
 
-On death: triggers Inbox Secured outro + death-burst animation.
+Subject: “Prince Requests Your Aid”
+
+Role: Legacy scam reborn as AI monarch.
+
+Attack: Three-way royal-seal spread.
+
+Tone Cue: Gold & crimson palette, orchestral glitch soundtrack.
+
+Phases: Normal → Glitch → Meltdown → Crown Burst.
+
+Tagline: “One last favor, my trusted friend…”
+
+
+
+⚙️ In-Game Data Object Example
+
+export const CAMPAIGN = [
+  {
+    id: 1,
+    title: "Clickbait Cloud",
+    tone: "funny / tutorial",
+    palette: ["#aefaff","#b8ffd8"],
+    subjects: [
+      "Singles In Your Area.exe",
+      "Guaranteed Weight Loss (No Effort Required)",
+      "5% Off Something Stupid"
+    ],
+    boss: "influencer"
+  },
+  {
+    id: 2,
+    title: "Phishing Swarm",
+    tone: "office anxiety",
+    palette: ["#ffc14a","#ff5a2b"],
+    subjects: [
+      "Urgent Invoice Attached!",
+      "Re: Re: Re: Final Notice",
+      "Free Vacation Voucher (Limited Time!)"
+    ],
+    boss: "phishmaster"
+  },
+  {
+    id: 3,
+    title: "Crypto Carnage",
+    tone: "neon greed",
+    palette: ["#00ff99","#ff00aa"],
+    subjects: [
+      "Crypto Goes 1000× Tonight!!!",
+      "Exclusive NFT Opportunity"
+    ],
+    boss: "coinlord"
+  },
+  {
+    id: 4,
+    title: "Royal Scam",
+    tone: "theatrical corruption",
+    palette: ["#ffd24a","#b21b1b"],
+    subjects: [
+      "Prince Requests Your Aid (Re: Inheritance Transfer)"
+    ],
+    boss: "prince"
+  }
+];
