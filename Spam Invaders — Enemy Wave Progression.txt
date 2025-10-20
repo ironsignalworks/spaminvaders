@@ -1,0 +1,72 @@
+🪐 Spam Invaders — Enemy Wave Progression
+LEVEL 1 — Clickbait Cloud (⭐ Low Annoyance)
+
+Tone: harmless, funny, tutorial-speed enemies
+Palette: light cyan / mint
+Subjects:
+
+“Singles In Your Area.exe”
+
+“Guaranteed Weight Loss (No Effort Required)”
+
+“5% Off Something Stupid”
+Notes:
+
+Slow drift left–right, minimal return fire.
+
+Ideal intro to teach controls and timing.
+
+LEVEL 2 — Phishing Swarm (⭐⭐ Mid Annoyance)
+
+Tone: office anxiety, fake urgency
+Palette: amber / warning orange
+Subjects:
+
+“Urgent Invoice Attached!”
+
+“Re: Re: Re: Final Notice”
+
+“Free Vacation Voucher (Limited Time!)”
+Notes:
+
+Faster horizontal march, occasional diagonal drop.
+
+Emails “flash red” before shooting back.
+
+Adds first power-up drops (VPN Shield).
+
+LEVEL 3 — Crypto Carnage (🔥 High Annoyance)
+
+Tone: loud, neon greed
+Palette: toxic green / magenta
+Subjects:
+
+“Crypto Goes 1000× Tonight!!!”
+
+“Exclusive NFT Opportunity”
+Notes:
+
+Enemies zig-zag like glitchy market charts.
+
+New bullet type: “Pump-n-Dump” spreads.
+
+Introduce mid-boss: CoinLord .v3 (gold cube that fires random memecoins).
+
+LEVEL 4 — Royal Scam (🔥🔥🔥 Boss Stage)
+
+Tone: theatrical, dangerous calm before chaos
+Palette: royal gold / crimson
+Subject:
+
+“Prince Requests Your Aid (Re: Inheritance Transfer)”
+Notes:
+
+Mini wave of “Courier Bots” precedes main event.
+
+Final boss: Nigerian Prince AI v7.3
+
+Sprays “Urgent Message” projectiles (royal seals).
+
+3 phases: normal → glitch → meltdown → crown burst.
+
+On death: triggers Inbox Secured outro + death-burst animation.
