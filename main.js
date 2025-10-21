@@ -1395,7 +1395,7 @@ const BOSS_SPRITES = {
                 }
                 e.dead = true;
                 if (currentEntry && currentEntry.id === 2 && Math.random() < 0.12){
-                  spawnVPNPowerUp(e.x + e.w/2, e.y);
+                  spawnVPNPowerUp(e.x + e.w/1, e.y);
                 }
                 addScore(20);
               }

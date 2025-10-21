@@ -1,304 +1,299 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Spam Invaders</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-
 <style>
-:root{
-  /* Win98 palette */
-  --win98-bg:        #00808000; /* transparent bg behind window (keep page bg separately) */
-  --desk:            #008080;   /* desktop teal (if you want) */
-  --win-face:        #c0c0c0;   /* 3D face */
-  --win-light:       #ffffff;   /* 3D light */
-  --win-hilite:      #dfdfdf;   /* 3D highlight */
-  --win-shadow:      #808080;   /* 3D shadow */
-  --win-dark:        #000000;   /* 3D dark shadow */
-  --title-blue:      #000080;   /* active titlebar */
-  --title-blue-grad: #1084d0;   /* active titlebar gradient */
-  --title-text:      #ffffff;
-  --text:            #000000;
+  :root{
+    --bg:#c0c0c0; --ink:#000; --accent:#000080; --danger:#800000; --gold:#c8a200;
+    --panel:#d4d0c8; --panel-dark:#808080; --panel-light:#ffffff; --panel-mid:#a0a0a0;
+    --green:#008000; --blue:#0000a8; --yellow:#c8a200; --shadow:#00000080;
 
-  /* game accents */
-  --accent: #6aa84f;  /* keep subtle green for shield */
-  --danger: #d94f6a;
-  --gold:   #d2b48c;
-}
+    /* Layout constants */
+    --bar-h: 36px;         /* reference height for ALL bars (top & bottom) */
+    --bar-pad-v: 4px;      /* consistent inner padding */
+    --bar-pad-h: 8px;
 
-*{box-sizing:border-box}
-html,body{height:100%; overflow:hidden;}
-body{
-  margin:0;
-  display:grid;
-  place-items:center;
-  background:#008080; /* Win98 desktop teal */
-  color:var(--text);
-  font-family: "MS Sans Serif", Tahoma, Verdana, sans-serif;
-  font-size: 12px;
-  letter-spacing: 0;
-}
+    /* Derived block heights for header/footer (two bars + gap + padding) */
+    --header-h: calc(var(--bar-h) * 2 + 8px + 12px);
+    --footer-h: calc(var(--bar-h) * 2 + 8px + 12px);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; overflow:hidden;}
+  body{
+    margin:0; display:grid; place-items:center; color:var(--ink);
+    /* One unified font everywhere (same as display) */
+    font-family:"MS Sans Serif", Tahoma, Verdana, sans-serif;
+    font-size:120%;               /* +20% font size across the game */
+    background:var(--bg) !important; /* no gradient */
+  }
 
-/* ===== Window / Frame ===== */
-.frame{
-  position:relative;
-  width:388px; height:576px; max-width:96vw;
-  background:var(--win-face);
-  /* 3D outer bevel */
-  border: 2px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light),
-    inset  2px  2px 0 var(--win-hilite);
-  border-radius: 0;
-  overflow:hidden;
-}
+  /* ===== Frame (keeps width; grows DOWN to fit viewport) ===== */
+  .frame{
+    position:relative;
+    width:420px;                 /* same width */
+    height:96vh;                 /* expand to fill screen height */
+    max-width:96vw;
+    background:var(--panel);
+    border:2px solid var(--panel-dark);
+    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 0 6px 18px var(--shadow);
+    overflow:hidden;
+    zoom:1.1;                    /* slight global scale to keep proportions */
+  }
 
-/* Titlebar + Statusbar */
-header,footer{
-  position:absolute; left:0; right:0; z-index:3; padding:4px 6px; display:flex;
-  align-items:center; justify-content:space-between;
-  color:var(--title-text);
-}
-header{
-  top:0;
-  background: linear-gradient(90deg, var(--title-blue), var(--title-blue-grad));
-  border-bottom: 2px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-}
-footer{
-  bottom:0; color:#000;
-  background: var(--win-face);
-  border-top: 2px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-}
+  /* ===== TOP: Folder Path + Message Ticker ===== */
+  header{
+    position:absolute; left:0; right:0; top:0; height:var(--header-h);
+    z-index:3; padding:6px 8px;
+    background:var(--panel); border-bottom:2px solid var(--panel-dark);
+    box-shadow: inset 0 -1px 0 var(--panel-light), inset 0 1px 0 var(--panel-mid);
+    display:flex; flex-direction:column; gap:8px; align-items:stretch; justify-content:center;
+  }
 
-/* Header stats (flat gray panels with bevel) */
-.headerStats{
-  display:flex; gap:6px; width:100%; justify-content:flex-start; align-items:center; flex-wrap:wrap;
-}
-.hudBlock{
-  display:flex; flex-direction:column; gap:2px; min-width:90px; padding:4px 6px;
-  background: var(--win-face);
-  color:#000;
-  border: 1px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-}
-.hudTight{min-width:auto;}
-.hudLabel{ font-size:10px; text-transform:uppercase; color:#000; opacity:.7; }
-.hudValue{ font-size:12px; font-variant-numeric: tabular-nums; }
+  /* Unified “bar” style shared by all display bars */
+  .bar{
+    display:flex; align-items:center; gap:6px; min-width:0;
+    height:var(--bar-h);
+    padding:var(--bar-pad-v) var(--bar-pad-h);
+    background:var(--panel); border:2px solid var(--panel-dark);
+    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+    overflow:hidden;
+  }
 
-/* Gauges look like progress bars */
-.gauge{
-  position:relative; width:110px; height:12px;
-  background: var(--win-face);
-  border: 1px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-}
-.gauge i{
-  position:absolute; inset:2px;
-  background: repeating-linear-gradient(
-    90deg, #9ad29a 0 8px, #7fb97f 8px 16px
-  );
-  transform-origin:left center;
-}
+  /* Top display: smaller & bold per request */
+  header .bar{ font-size:0.8em; font-weight:bold; }
 
-/* Lives blocks = little Win98 selection squares */
-.lives{ display:flex; gap:4px; }
-.life{
-  width:12px; height:10px; background:#9ad29a;
-  border:1px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-}
-.ghost{ opacity:.3; }
+  .pathbar{ /* inherits the same display font now */
+    composes: bar;
+    white-space:nowrap; text-overflow:ellipsis;
+  }
+  .pathbar span{min-width:0; overflow:hidden; text-overflow:ellipsis;}
 
-/* Canvas */
-canvas{
-  position:absolute; top:86px; left:10px; width:368px; height:452px;
-  background:#000; image-rendering: pixelated; z-index:1;
-  border: 1px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-}
+  .ticker{
+    composes: bar;
+    text-transform:uppercase; color:#111;
+  }
+  .tickerText{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
-/* Footer groups */
-.footerBar{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
-.statusGroup{ display:flex; align-items:center; gap:8px; }
+  /* ===== BOTTOM: HUD (Score/High/Shield + Lives/Boss HP) ===== */
+  footer{
+    position:absolute; left:0; right:0; bottom:0; height:var(--footer-h);
+    z-index:3; padding:6px 8px 8px;
+    background:var(--panel);
+    border-top:2px solid var(--panel-dark);
+    box-shadow: inset 0 1px 0 var(--panel-light), inset 0 -1px 0 var(--panel-mid);
+    display:flex; flex-direction:column; gap:8px;
+  }
 
-/* Footer HUD blocks (same bevel but tighter) */
-footer .hudBlock{ padding:4px 6px; }
-footer .hudLabel{ font-size:10px; text-transform:uppercase; opacity:.8; }
+  .hudRow{
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+  }
 
-/* Ticker = plain text bar at right */
-.ticker{ font-size:11px; color:#000; flex:1; justify-content:flex-end; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-footer .tickerLabel{ font-weight:bold; }
-footer .tickerText{ animation:none; }
+  .hudBlock{
+    /* same height as top bars */
+    height:var(--bar-h);
+    flex:1; display:flex; align-items:center; gap:8px;
+    padding:var(--bar-pad-v) var(--bar-pad-h);
+    background:var(--panel); border:2px solid var(--panel-dark);
+    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+    min-width:0;
+  }
+  .hudLabel{font-weight:bold; white-space:nowrap;}
+  .hudValue{font-variant-numeric:tabular-nums; min-width:64px; text-align:right;}
+  .hudGrow{flex:1; min-width:0;}
 
-/* Boss bar = classic progress bar */
-.bossbar{
-  position:absolute; left:10px; right:10px; top:108px; height:12px; z-index:4; display:none;
-  background: var(--win-face);
-  border: 1px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-}
-.bossbar i{
-  height:100%;
-  background: repeating-linear-gradient(90deg, #e1c16e 0 8px, #caa562 8px 16px);
-  transform-origin:left center;
-}
-.bosslabel{
-  position:absolute; top:92px; left:10px; z-index:4;
-  font-size:11px; color:#000; text-shadow:none; display:none;
-}
+  /* Gauges (Shield & Boss HP) — same height everywhere */
+  .gauge{
+    position:relative; height:12px; width:100%;
+    background:var(--panel); border:2px solid var(--panel-dark);
+    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+  }
+  .gauge i{
+    position:absolute; inset:2px;
+    background:repeating-linear-gradient(90deg,#9ad29a 0 8px,#7fb97f 8px 16px); /* shield green */
+    transform-origin:left center; transform:scaleX(1);
+  }
+  .gauge.boss i{
+    background:repeating-linear-gradient(90deg,#ff6b6b 0 8px,#d94a4a 8px 16px); /* boss red */
+    transform:scaleX(0);
+  }
 
-/* Overlays = message boxes */
-.overlay{
-  position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-  background: rgba(192,192,192,.96);
-  border: 2px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-  text-transform:none; padding:20px;
-}
-.overlay h1{
-  margin:0; padding:4px 6px; width:100%; text-align:left;
-  font-weight:bold; font-size:14px; color:var(--title-text);
-  background: linear-gradient(90deg, var(--title-blue), var(--title-blue-grad));
-  border: 1px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-  text-transform:uppercase;
-}
-.overlay p{ margin:0; font-size:12px; color:#000; }
+  /* Lives */
+  .lives{display:flex;align-items:center;gap:6px;}
+  .life{width:12px;height:10px;background:var(--blue);
+        border:2px solid var(--panel-dark);
+        box-shadow:inset -1px -1px 0 var(--panel-light),inset 1px 1px 0 var(--panel-mid);}
+  .ghost{opacity:.25;}
 
-/* Buttons: classic 3D push buttons */
-.btn{
-  display:inline-flex; align-items:center; justify-content:center;
-  padding:4px 14px; min-width:84px;
-  background: var(--win-face); color:#000; cursor:pointer;
-  border: 2px solid var(--win-dark);
-  box-shadow:
-    inset -1px -1px 0 var(--win-shadow),
-    inset  1px  1px 0 var(--win-light);
-  text-transform: none; letter-spacing: 0; font-size:12px;
-}
-.btn:hover{ filter:brightness(1.02); }
-.btn:active{
-  /* pressed look */
-  box-shadow:
-    inset  1px  1px 0 var(--win-shadow),
-    inset -1px -1px 0 var(--win-light);
-}
+  /* Legacy boss label kept but hidden */
+  .bosslabel{display:none !important;}
 
-/* Level label */
-#hudLevel{ font-size:12px; }
+  /* ===== Canvas fills between header and footer (expands DOWN only) ===== */
+  canvas{
+    position:absolute;
+    top:var(--header-h);
+    bottom:var(--footer-h);        /* anchor to footer so it grows downward */
+    left:16px; width:388px;        /* keep width */
+    height:auto;                   /* let it stretch between top & bottom */
+    background:#020409; z-index:1;
+    image-rendering:pixelated; border:2px solid var(--panel-dark);
+    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+  }
 
-/* Optional: shrink everything ~10% to help fit narrower browsers */
-.frame{
-  transform: scale(0.9);
-  transform-origin: top center;
-}
-@media (min-width: 920px){
-  .frame{ transform: scale(1); }
-}
+  /* ===== Popups (larger text; unified font inherited) ===== */
+  .overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:5;
+           background:#00000040; padding:24px;}
+  .overlay.hidden{display:none;}
+  .popup{
+    min-width:260px; max-width:360px; background:var(--panel); color:#111;
+    border:2px solid var(--panel-dark);
+    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 6px 6px 0 #00000030;
+    font-size:1.25em; /* bump popup body text size */
+  }
+  .titlebar{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:6px 8px; background:var(--accent); color:#fff; font-weight:bold;
+    font-size:1.1em; /* larger title */
+  }
+  .titlebar .controls{display:flex;gap:4px;}
+  .winbtn{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+          background:var(--panel);color:#111;border:2px solid var(--panel-dark);
+          box-shadow:inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+          font-size:12px;line-height:1;user-select:none;}
+  .content{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+  .content h1{margin:0;font-size:1.05em;}
+  .content p{margin:0;font-size:1em;line-height:1.5;}
+  .actions{display:flex;justify-content:flex-end;gap:10px;padding:8px 14px 14px;}
+  .btn{padding:6px 12px;background:var(--panel);border:2px solid var(--panel-dark);cursor:pointer;
+       font-size:1em; /* bigger button text */
+       box-shadow:inset -1px -1px 0 var(--panel-light),inset 1px 1px 0 var(--panel-mid);}
+  .btn:hover{filter:brightness(.95);}
+  .visually-hidden{
+    position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0;
+  }
 
+  /* Hide any legacy bossbar elements if present */
+  .bossbar{display:none !important;}
   
 </style>
 </head>
 <body>
-  <div class="frame">
-    <header class="hud">
-      <div class="headerStats">
-        <div class="hudBlock">
-          <span class="hudLabel">Score</span>
-          <span class="hudValue" id="hudScore">00000</span>
-        </div>
-        <div class="hudBlock">
-          <span class="hudLabel">Hi-Score</span>
-          <span class="hudValue" id="hudHigh">00000</span>
-        </div>
-        <div class="hudBlock">
-          <span class="hudLabel">Boss HP</span>
-          <span class="hudValue" id="hudBoss">---</span>
-        </div>
-        <div class="hudBlock hudTight">
-          <span class="hudLabel">Folder</span>
-          <span class="hudValue" id="hudLevel">LEVEL 01</span>
-        </div>
+  <div id="gameRoot" class="frame">
+
+    <!-- TOP: Folder Path + Message -->
+    <header>
+      <div class="pathbar bar" title="Current folder / level">
+        <span id="hudLevel">—</span>
+      </div>
+      <div class="ticker bar">
+        <span class="tickerText">PRESS START — DEFEND THE INBOX</span>
       </div>
     </header>
 
-    <div class="bosslabel" id="bossLabel">BOSS INCOMING</div>
-    <div class="bossbar" id="bossBar"><i id="bossFill" style="transform:scaleX(1)"></i></div>
+    <!-- Legacy label kept (hidden by CSS) -->
+    <div id="bossLabel" class="bosslabel">BOSS</div>
 
-    <canvas id="game" width="357" height="441"></canvas>
+    <!-- NOTE: Canvas CSS stretches between header/footer. The width stays fixed, height scales visually. -->
+    <canvas id="game" width="388" height="420"></canvas>
 
+    <!-- BOTTOM: HUD -->
     <footer>
-      <div class="footerBar">
-        <div class="statusGroup">
-          <div class="hudBlock hudTight">
-            <span class="hudLabel">Shield</span>
-            <div class="gauge"><i id="capacityFill" style="transform:scaleX(1)"></i></div>
-          </div>
-          <div class="hudBlock hudTight">
-            <span class="hudLabel">Lives</span>
-            <div class="lives" id="hearts"></div>
+      <!-- Row 1: Score, High, Shield -->
+      <div class="hudRow">
+        <div class="hudBlock">
+          <span class="hudLabel">Score</span>
+          <span id="hudScore" class="hudValue hudGrow">00000</span>
+        </div>
+        <div class="hudBlock">
+          <span class="hudLabel">High</span>
+          <span id="hudHigh" class="hudValue hudGrow">00000</span>
+        </div>
+        <div class="hudBlock">
+          <span class="hudLabel">Shield</span>
+          <div class="gauge hudGrow">
+            <i id="capacityFill" style="transform:scaleX(1)"></i>
           </div>
         </div>
-        <div class="ticker">
-          <span class="tickerLabel">Command</span>
-          <span class="tickerText">LEFT/RIGHT MOVE  -  SPACE FIRE  -  PRESS START</span>
+      </div>
+
+      <!-- Row 2: Lives, Boss HP -->
+      <div class="hudRow">
+        <div class="hudBlock">
+          <span class="hudLabel">You</span>
+          <div id="hearts" class="lives hudGrow"></div>
+        </div>
+        <div class="hudBlock">
+          <span class="hudLabel">Boss</span>
+          <div id="bossBar" class="gauge boss hudGrow">
+            <i id="bossFill" style="transform:scaleX(0)"></i>
+          </div>
+          <span id="hudBoss" class="visually-hidden">---</span>
         </div>
       </div>
     </footer>
 
-    <!-- Start -->
-    <div class="overlay" id="start">
-      <h1>[ SPAM INVADERS ]</h1>
-      <p>Sector mailbox under attack.<br>Deploy spam filters and defend the archive.</p>
-      <button class="btn" id="btnStart">START</button>
+    <!-- Popups -->
+    <div id="start" class="overlay">
+      <div class="popup" role="dialog" aria-labelledby="startTitle">
+        <div class="titlebar">
+          <span id="startTitle">Spam Nightmare Setup</span>
+          <div class="controls"><div class="winbtn">_</div><div class="winbtn">□</div><div class="winbtn">X</div></div>
+        </div>
+        <div class="content">
+         <h1>Welcome to the ultimate spam nightmare.</h1>
+         <p>Deploy spam filters, hold the line, and defend the archive — or be consumed by the <strong>most weaponized marketing campaign ever sent.</strong> Arrow keys to move. Space to fire. Hope is optional.</p>         
+        </div>
+        <div class="actions"><button id="btnStart" class="btn">Start</button></div>
+      </div>
+        
+    </div>
+    
+
+    <div id="bossIntro" class="overlay hidden">
+      <div class="popup" role="dialog" aria-labelledby="bossIntroTitle">
+        <div class="titlebar">
+          <span id="bossIntroTitle">—</span>
+          <div class="controls"><div class="winbtn">_</div><div class="winbtn">□</div><div class="winbtn">X</div></div>
+        </div>
+        <div class="content">
+          <h1 id="bossIntroName">—</h1>
+          <p>Threat detected. Press on to secure the inbox.</p>
+        </div>
+        <div class="actions"><button id="btnIntroOk" class="btn">Proceed</button></div>
+      </div>
     </div>
 
-    <!-- Level Cleared -->
-    <div class="overlay" id="cleared" style="display:none">
-      <h1>[ INBOX SECURED ]</h1>
-      <p>The Prince has been unsubscribed. System rebooting..</p>
-      <button class="btn" id="btnNext">NEXT STAGE</button>
+    <div id="cleared" class="overlay hidden">
+      <div class="popup" role="dialog">
+        <div class="titlebar">
+          <span>System Notice</span>
+          <div class="controls"><div class="winbtn">_</div><div class="winbtn">□</div><div class="winbtn">X</div></div>
+        </div>
+        <div class="content">
+          <h1>[ INBOX SECURED ]</h1>
+          <p>Threat neutralized. System rebooting…</p>
+        </div>
+        <div class="actions"><button id="btnNext" class="btn">Next</button></div>
+      </div>
     </div>
 
-    <!-- Game Over -->
-    <div class="overlay" id="gameover" style="display:none">
-      <h1>[ MAILBOX BREACHED ]</h1>
-      <p>Spam levels critical. Inbox overload. Systems throttled.</p>
-      <button class="btn" id="btnAgain">TRY AGAIN</button>
+    <div id="gameover" class="overlay hidden">
+      <div class="popup" role="dialog">
+        <div class="titlebar">
+          <span>Critical Alert</span>
+          <div class="controls"><div class="winbtn">_</div><div class="winbtn">□</div><div class="winbtn">X</div></div>
+        </div>
+        <div class="content">
+          <h1>[ MAILBOX LOST ]</h1>
+          <p>The archive is compromised. Press Start to try again.</p>
+        </div>
+        <div class="actions"><button id="btnAgain" class="btn">Start Over</button></div>
+      </div>
     </div>
 
-    <!-- Boss Intro -->
-    <div class="overlay overlay-boss" id="bossIntro" style="display:none">
-      <h1 id="bossIntroTitle">[ INCOMING THREAT ]</h1>
-      <p id="bossIntroName">BOSS INCOMING</p>
-    </div>
   </div>
 
   <script type="module" src="./main.js"></script>
-    
 </body>
 </html>
