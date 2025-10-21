@@ -79,6 +79,31 @@
         prince:     { id:'prince',     displayName:'NIGERIAN PRINCE AI v7.3', tagline:'One last favor, my trusted friend...', attack:'royalSeal', color:'#ffd24a', accent:'#b21b1b', size:{w:96,h:96}, speed:0.94, approachY:110, approachSpeed:0.05 }
       };
     
+      // near your other timing constants
+const BOSS_INTRO_MS = 3500;   // << make it as long as you want
+const btnIntroOk = document.getElementById('btnIntroOk');
+
+function spawnBossAfterIntro(spec){
+  elBossIntro.style.display = 'none';
+  state = 'play';
+  spawnBoss(spec);
+  pendingBossSpec = null;
+  bossIntroTimeout = null;
+  requestAnimationFrame(loop);
+}
+
+if (btnIntroOk){
+  btnIntroOk.onclick = () => {
+    if (pendingBossSpec){
+      if (bossIntroTimeout) { clearTimeout(bossIntroTimeout); bossIntroTimeout = null; }
+      spawnBossAfterIntro(pendingBossSpec);
+    } else {
+      elBossIntro.style.display = 'none';
+      state = 'play';
+    }
+  };
+}
+
       /* ========= Boss Sprite Registry ========= */
 /* Reuses drawSpriteCharMap(ctx, sprite, pal, x, y, scale) */
 const BOSS_SPRITES = {
@@ -581,7 +606,8 @@ const BOSS_SPRITES = {
         root.style.setProperty('--accent', entry.palette[0]);
         root.style.setProperty('--danger', entry.palette[1]);
         root.style.setProperty('--gold', entry.palette[0]);
-        document.body.style.background = `radial-gradient(circle at top, ${entry.palette[0]}22, #010203 68%)`;
+        // No gradient; honor CSS body background
+        document.body.style.background = ''; // or 'var(--bg)' if you prefer
       }
       function nextSubject(entry){
         if (!entry || !entry.subjects || !entry.subjects.length) return '';
@@ -616,10 +642,16 @@ const BOSS_SPRITES = {
           try { localStorage.setItem('spamInvadersHighScore', String(highScore)); } catch(err){}
         }
       }
-      function showBossUI(r=1){ bossLabel.style.display='block'; bossBar.style.display='block'; bossFill.style.transform=`scaleX(${r})`; }
+      function showBossUI(r=1){
+        if (bossLabel) bossLabel.style.display='block';
+        if (bossBar) {
+          bossBar.style.display='block';
+          if (bossFill) bossFill.style.transform = `scaleX(${r})`;
+        }
+      }
       function hideBossUI(){
-        bossLabel.style.display='none';
-        bossBar.style.display='none';
+        if (bossLabel) bossLabel.style.display='none';
+        if (bossBar) bossBar.style.display='none';
         updateBossHUD('---');
       }
     
@@ -720,6 +752,8 @@ const BOSS_SPRITES = {
         spawnWave(level);
         updateHearts();
         updateCapacity();
+        // After you set elStart.style.display='flex' anywhere, call:
+        paintLegendIcons();
         boss = null;
         hideBossUI();
         princeFX = null;
@@ -836,133 +870,154 @@ const BOSS_SPRITES = {
         };
       }
     
-      function spawnBoss(spec){
-        const def = BOSSES[spec.kind] || BOSSES.prince;
-        currentBossDef = def;
-        const size = def.size || { w: 180, h: 90 };
-        const targetY = spec.targetY || def.approachY || 110;
-        const approachSpeed = spec.approachSpeed || def.approachSpeed || 0.055;
-        boss = {
-          x: W/2 - size.w/2,
-          y: -size.h,
-          w: size.w,
-          h: size.h,
-          dir: 1,
-          maxHP: spec.hp,
-          hp: spec.hp,
-          fire: 0,
-          speed: spec.speed,
-          type: def.id,
-          hurt: 0,
-          name: def.displayName,
-          color: spec.color || def.color,
-          accent: spec.accent || def.accent,
-          def,
-          targetY,
-          descendSpeed: approachSpeed,
-          approach: true,
-          fireScale: def.fireScale || spec.fireScale || 1
-        };
-        bossLabel.textContent = def.displayName;
-        refreshBossHUD();
-        showBossUI(1);
-        setTicker(`${def.displayName} - ${def.tagline}`);
+function spawnBoss(spec){
+  const def = BOSSES[spec.kind] || BOSSES.prince;
+  currentBossDef = def;
+  const size = def.size || { w: 180, h: 90 };
+  const targetY = spec.targetY || def.approachY || 110;
+  const approachSpeed = spec.approachSpeed || def.approachSpeed || 0.055;
+  boss = {
+    x: W/2 - size.w/2,
+    y: -size.h,
+    w: size.w,
+    h: size.h,
+    dir: 1,
+    maxHP: spec.hp,
+    hp: spec.hp,
+    fire: 0,
+    speed: spec.speed,
+    type: def.id,
+    hurt: 0,
+    name: def.displayName,
+    color: spec.color || def.color,
+    accent: spec.accent || def.accent,
+    def,
+    targetY,
+    descendSpeed: approachSpeed,
+    approach: true,
+    fireScale: def.fireScale || spec.fireScale || 1
+  };
+  bossLabel.textContent = def.displayName;
+  refreshBossHUD();
+  showBossUI(1);
+  setTicker(`${def.displayName} - ${def.tagline}`);
+}
+
+function spawnBossAfterIntro(spec){
+  elBossIntro.style.display = 'none';
+  state = 'play';
+  spawnBoss(spec);
+  pendingBossSpec = null;
+  bossIntroTimeout = null;
+  requestAnimationFrame(loop);
+}
+
+function showBossIntro(spec){
+  if (!spec) return;
+  pendingBossSpec = spec;
+  if (bossIntroTimeout){
+    clearTimeout(bossIntroTimeout);
+    bossIntroTimeout = null;
+  }
+  enemyBullets = [];
+  bullets = [];
+  const def = BOSSES[spec.kind] || BOSSES.prince;
+  bossIntroTitle.textContent = def.displayName;
+  bossIntroName.textContent  = def.tagline;
+  elBossIntro.style.display  = 'flex';
+  state = 'bossIntro';
+  setTicker(`${def.displayName} - STAND BY`);
+
+  bossIntroTimeout = setTimeout(() => {
+    if (state !== 'bossIntro' || pendingBossSpec !== spec) return;
+    spawnBossAfterIntro(spec);
+  }, BOSS_INTRO_MS);
+}
+
+// Hook up the "Proceed" button if available
+if (typeof btnIntroOk !== 'undefined' && btnIntroOk){
+  btnIntroOk.onclick = () => {
+    if (pendingBossSpec){
+      if (bossIntroTimeout){ clearTimeout(bossIntroTimeout); bossIntroTimeout = null; }
+      spawnBossAfterIntro(pendingBossSpec);
+    } else {
+      elBossIntro.style.display = 'none';
+      state = 'play';
+      requestAnimationFrame(loop);
+    }
+  };
+}
+
+function clearBossIntro(){
+  if (bossIntroTimeout){
+    clearTimeout(bossIntroTimeout);
+    bossIntroTimeout = null;
+  }
+  elBossIntro.style.display = 'none';
+  pendingBossSpec = null;
+  if (state === 'bossIntro') state = 'play';
+}
+
+function shootPlayer(){
+  if (player.cooldown <= 0){
+    bullets.push({ x: player.x + player.w/2 - 2, y: player.y - 10, w:4, h:10, vy:-7 });
+    player.cooldown = 12;
+  }
+}
+
+function enemyTryShoot(dt){
+  if (!swarm.list.length) return;
+  swarm.shootTimer -= dt;
+  if (swarm.shootTimer <= 0){
+    const alive = swarm.list.length;
+    const behaviour = swarm.behaviour || {};
+    let rate = swarm.fireBase - alive * (behaviour.flash ? 12 : 8);
+    rate = clamp(rate, 240, 1400);
+    swarm.shootTimer = rate;
+
+    const byCol = {};
+    for (const e of swarm.list){
+      const colKey = Math.round(e.x/48);
+      if (!byCol[colKey] || e.y > byCol[colKey].y) byCol[colKey] = e;
+    }
+    const shooters = Object.values(byCol);
+    if (shooters.length){
+      const s = shooters[Math.floor(Math.random()*shooters.length)];
+      if (behaviour.flash && s){ s.flash = 140; }
+      const bulletColor = (swarm.entry && swarm.entry.palette[1]) || '#ff9a9a';
+      const baseVy = 3.0 + Math.min(level*0.25, 3.4);
+      if (behaviour.courier && s.courier){
+        const seal = createRoyalSeal(s.x + s.w/2 - 4, s.y + s.h + 2, 0, baseVy);
+        seal.scale = 1.5;
+        enemyBullets.push(seal);
+      } else if (swarm.entry && swarm.entry.id === 3){
+        const offsets = [-1.4, 0, 1.4];
+        offsets.forEach(off => {
+          enemyBullets.push({
+            x: s.x + s.w/2 - 3,
+            y: s.y + s.h + 2,
+            w:6, h:12,
+            vy: baseVy + Math.random()*0.6,
+            vx: off * 0.8,
+            color: bulletColor,
+            kind: 'spread'
+          });
+        });
+      } else {
+        enemyBullets.push({
+          x: s.x + s.w/2 - 2,
+          y: s.y + s.h + 2,
+          w:4, h:10,
+          vy: baseVy,
+          vx: 0,
+          color: bulletColor,
+          kind: 'spam'
+        });
       }
-    
-      function showBossIntro(spec){
-        if (!spec) return;
-        pendingBossSpec = spec;
-        if (bossIntroTimeout){
-          clearTimeout(bossIntroTimeout);
-          bossIntroTimeout = null;
-        }
-        enemyBullets = [];
-        bullets = [];
-        const def = BOSSES[spec.kind] || BOSSES.prince;
-        bossIntroTitle.textContent = def.displayName;
-        bossIntroName.textContent = def.tagline;
-        elBossIntro.style.display = 'flex';
-        state = 'bossIntro';
-        setTicker(`${def.displayName} - STAND BY`);
-        bossIntroTimeout = setTimeout(() => {
-          if (state !== 'bossIntro' || pendingBossSpec !== spec) return;
-          elBossIntro.style.display = 'none';
-          state = 'play';
-          spawnBoss(spec);
-          pendingBossSpec = null;
-          bossIntroTimeout = null;
-          requestAnimationFrame(loop);
-        }, 1700);
-      }
-    
-      function clearBossIntro(){
-        if (bossIntroTimeout){
-          clearTimeout(bossIntroTimeout);
-          bossIntroTimeout = null;
-        }
-        elBossIntro.style.display = 'none';
-        pendingBossSpec = null;
-        if (state === 'bossIntro') state = 'play';
-      }
-    
-      function shootPlayer(){
-        if (player.cooldown <= 0){
-          bullets.push({ x: player.x + player.w/2 - 2, y: player.y - 10, w:4, h:10, vy:-7 });
-          player.cooldown = 12;
-        }
-      }
-      function enemyTryShoot(dt){
-        if (!swarm.list.length) return;
-        swarm.shootTimer -= dt;
-        if (swarm.shootTimer <= 0){
-          const alive = swarm.list.length;
-          const behaviour = swarm.behaviour || {};
-          let rate = swarm.fireBase - alive * (behaviour.flash ? 12 : 8);
-          rate = clamp(rate, 240, 1400);
-          swarm.shootTimer = rate;
-    
-          const byCol = {};
-          for (const e of swarm.list){
-            const colKey = Math.round(e.x/48);
-            if (!byCol[colKey] || e.y > byCol[colKey].y) byCol[colKey] = e;
-          }
-          const shooters = Object.values(byCol);
-          if (shooters.length){
-            const s = shooters[Math.floor(Math.random()*shooters.length)];
-            if (behaviour.flash && s){ s.flash = 140; }
-            const bulletColor = (swarm.entry && swarm.entry.palette[1]) || '#ff9a9a';
-            const baseVy = 3.0 + Math.min(level*0.25, 3.4);
-            if (behaviour.courier && s.courier){
-              const seal = createRoyalSeal(s.x + s.w/2 - 4, s.y + s.h + 2, 0, baseVy);
-              seal.scale = 1.5;
-              enemyBullets.push(seal);
-            } else if (swarm.entry && swarm.entry.id === 3){
-              const offsets = [-1.4, 0, 1.4];
-              offsets.forEach(off => {
-                enemyBullets.push({
-                  x: s.x + s.w/2 - 3,
-                  y: s.y + s.h + 2,
-                  w:6, h:12,
-                  vy: baseVy + Math.random()*0.6,
-                  vx: off * 0.8,
-                  color: bulletColor,
-                  kind: 'spread'
-                });
-              });
-            } else {
-              enemyBullets.push({
-                x: s.x + s.w/2 - 2,
-                y: s.y + s.h + 2,
-                w:4, h:10,
-                vy: baseVy,
-                vx: 0,
-                color: bulletColor,
-                kind: 'spam'
-              });
-            }
-          }
-        }
-      }
+    }
+  }
+}
+
     
       function drawHeartProjectile(ctx, proj){
         const size = proj.size || 12;
@@ -1020,6 +1075,57 @@ const BOSS_SPRITES = {
         ctx.closePath();
         ctx.fill();
       }
+        // === Power-up icon helpers (reused by legend and gameplay) ===
+    function drawLifeDiamondShape(ctx, x, y, w, h, glow=0){
+        const pulse = 0.6 + 0.3 * Math.sin(glow);
+        ctx.beginPath();
+        ctx.moveTo(x + w/2, y);
+        ctx.lineTo(x + w,   y + h/2);
+        ctx.lineTo(x + w/2, y + h);
+        ctx.lineTo(x,       y + h/2);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(255, 255, 180, ${0.7 + 0.2 * pulse})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(255, 215, 120, 0.9)`;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+        ctx.lineWidth = 1;
+    }
+    
+    function drawVPNShape(ctx, x, y, w, h, glow=0){
+        const pulse = 0.6 + 0.3 * Math.sin(glow);
+        ctx.fillStyle = `rgba(120, 255, 230, ${pulse})`;
+        ctx.beginPath();
+        ctx.moveTo(x + w/2, y);
+        ctx.lineTo(x + w,   y + h/2);
+        ctx.lineTo(x + w/2, y + h);
+        ctx.lineTo(x,       y + h/2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(20,60,70,0.8)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.lineWidth = 1;
+    }
+    function paintLegendIcons(){
+        const lifeCanvas = document.getElementById('iconLife');
+        const vpnCanvas  = document.getElementById('iconVPN');
+        if (!lifeCanvas || !vpnCanvas) return;
+      
+        const lc = lifeCanvas.getContext('2d');
+        lc.clearRect(0,0,lifeCanvas.width,lifeCanvas.height);
+        drawLifeDiamondShape(lc, 2, 2, lifeCanvas.width-4, lifeCanvas.height-4, 0);
+      
+        const vc = vpnCanvas.getContext('2d');
+        vc.clearRect(0,0,vpnCanvas.width,vpnCanvas.height);
+        drawVPNShape(vc, 2, 3, vpnCanvas.width-4, vpnCanvas.height-6, 0);
+      }
+      
+      // call once on load, and again if you ever rebuild the Start popup dynamically
+      document.addEventListener('DOMContentLoaded', paintLegendIcons);
+      // also call when you open the Start overlay (in case of SPA transitions)
+      if (elStart) elStart.addEventListener('transitionend', paintLegendIcons);
+      
     
       function spawnVPNPowerUp(x, y){ powerUps.push({ x: x - 10, y, w: 20, h: 12, vy: 1.5, glow: 0, type: 'vpn' }); }
       function spawnLifeDiamond(x, y){ powerUps.push({ x: x - 9, y, w: 18, h: 18, vy: 1.25, glow: 0, type: 'life' }); }
@@ -1057,31 +1163,11 @@ const BOSS_SPRITES = {
     
       function drawPowerUps(){
         for (const p of powerUps){
-          const pulse = 0.6 + 0.3 * Math.sin(p.glow || 0);
+          const g = p.glow || 0;
           if (p.type === 'life'){
-            ctx.beginPath();
-            ctx.moveTo(p.x + p.w/2, p.y);
-            ctx.lineTo(p.x + p.w, p.y + p.h/2);
-            ctx.lineTo(p.x + p.w/2, p.y + p.h);
-            ctx.lineTo(p.x, p.y + p.h/2);
-            ctx.closePath();
-            ctx.fillStyle = `rgba(255, 255, 180, ${0.7 + 0.2 * pulse})`;
-            ctx.fill();
-            ctx.strokeStyle = `rgba(255, 215, 120, ${0.9})`;
-            ctx.lineWidth = 1.4;
-            ctx.stroke();
+            drawLifeDiamondShape(ctx, p.x, p.y, p.w, p.h, g);
           } else {
-            ctx.fillStyle = `rgba(120, 255, 230, ${pulse})`;
-            ctx.beginPath();
-            ctx.moveTo(p.x + p.w/2, p.y);
-            ctx.lineTo(p.x + p.w, p.y + p.h/2);
-            ctx.lineTo(p.x + p.w/2, p.y + p.h);
-            ctx.lineTo(p.x, p.y + p.h/2);
-            ctx.closePath();
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(20,60,70,0.8)';
-            ctx.lineWidth = 1.2;
-            ctx.stroke();
+            drawVPNShape(ctx, p.x, p.y, p.w, p.h, g);
           }
         }
         ctx.lineWidth = 1;
@@ -1395,7 +1481,7 @@ const BOSS_SPRITES = {
                 }
                 e.dead = true;
                 if (currentEntry && currentEntry.id === 2 && Math.random() < 0.12){
-                  spawnVPNPowerUp(e.x + e.w/1, e.y);
+                  spawnVPNPowerUp(e.x + e.w/2, e.y);
                 }
                 addScore(20);
               }
