@@ -583,6 +583,56 @@ const BOSS_SPRITES = {
         drawSpriteCharMap(ctx, frame, pack.pal, sx, sy, px);
         return true;
       }
+      (function initTouchControls(){
+        const root = document.getElementById('touchControls');
+        if (!root) return;
+      
+        // If the device has no touch, keep hidden (CSS also hides it)
+        const isTouch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+        if (!isTouch) return;
+      
+        const active = new Map(); // pointerId -> key it controls
+      
+        function setKey(key, down){
+          // Reuse your keyboard mapping
+          keys[key] = !!down;
+      
+          // Optional: tiny haptic tick on press (mobile only)
+          if (down && 'vibrate' in navigator) {
+            try { navigator.vibrate(10); } catch(_) {}
+          }
+        }
+      
+        function onDown(e){
+          if (!(e.target instanceof HTMLElement)) return;
+          const key = e.target.dataset.key;
+          if (!key) return;
+          e.preventDefault();
+          e.stopPropagation();
+          active.set(e.pointerId ?? 'mouse', key);
+          setKey(key, true);
+          e.target.setPointerCapture?.(e.pointerId);
+        }
+      
+        function onUp(e){
+          const id = e.pointerId ?? 'mouse';
+          const key = active.get(id);
+          if (key) setKey(key, false);
+          active.delete(id);
+        }
+      
+        root.addEventListener('pointerdown', onDown, {passive:false});
+        root.addEventListener('pointerup', onUp, {passive:false});
+        root.addEventListener('pointercancel', onUp);
+        root.addEventListener('pointerleave', onUp);
+      
+        // Safety: release keys when the overlay hides or page loses focus
+        window.addEventListener('blur', () => {
+          ['ArrowLeft','ArrowRight','Space'].forEach(k => setKey(k,false));
+          active.clear();
+        });
+      })();
+      
     
       const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
       function rectsOverlap(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }

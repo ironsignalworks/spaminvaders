@@ -18,19 +18,21 @@
     /* Derived block heights for header/footer (two bars + gap + padding) */
     --header-h: calc(var(--bar-h) * 2 + 8px + 12px);
     --footer-h: calc(var(--bar-h) * 2 + 8px + 12px);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%; overflow:hidden;}
-    body{
-        margin:0; display:grid; place-items:center; color:var(--ink);
-        /* One unified font everywhere (same as display) */
-        font-family:"MS Sans Serif", Tahoma, Verdana, sans-serif;
-        font-size:120%;               /* +20% font size across the game */
-        background:var(--bg) !important; /* no gradient */
-    }
 
-    /* ===== Frame (keeps width; grows DOWN to fit viewport) ===== */
-   .frame{
+    /* Mobile controls dock height (0 on desktop; set in mobile MQ) */
+    --controls-h: 0px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; overflow:hidden;}
+  body{
+    margin:0; display:grid; place-items:center; color:var(--ink);
+    font-family:"MS Sans Serif", Tahoma, Verdana, sans-serif;
+    font-size:120%;
+    background:var(--bg) !important;
+  }
+
+  /* ===== Frame (keeps width; grows DOWN to fit viewport) ===== */
+  .frame{
     position:relative;
     width:420px;
     height:100vh;           /* fill the viewport */
@@ -39,7 +41,7 @@
     border:2px solid var(--panel-dark);
     box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 0 6px 18px var(--shadow);
     overflow:hidden;
-}
+  }
 
   /* ===== TOP: Folder Path + Message Ticker ===== */
   header{
@@ -60,22 +62,16 @@
     overflow:hidden;
   }
 
-  /* Top display: smaller & bold per request */
+  /* Top display: smaller & bold */
   header .bar{ font-size:0.8em; font-weight:bold; }
 
-  .pathbar{ /* inherits the same display font now */
-    composes: bar;
-    white-space:nowrap; text-overflow:ellipsis;
-  }
+  .pathbar{ white-space:nowrap; text-overflow:ellipsis; }
   .pathbar span{min-width:0; overflow:hidden; text-overflow:ellipsis;}
 
-  .ticker{
-    composes: bar;
-    text-transform:uppercase; color:#111;
-  }
+  .ticker{ text-transform:uppercase; color:#111; }
   .tickerText{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
-  /* ===== BOTTOM: HUD (Score/High/Shield + Lives/Boss HP) ===== */
+  /* ===== BOTTOM: HUD ===== */
   footer{
     position:absolute; left:0; right:0; bottom:0; height:var(--footer-h);
     z-index:3; padding:6px 8px 8px;
@@ -85,12 +81,9 @@
     display:flex; flex-direction:column; gap:8px;
   }
 
-  .hudRow{
-    display:flex; justify-content:space-between; align-items:center; gap:8px;
-  }
+  .hudRow{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
 
   .hudBlock{
-    /* same height as top bars */
     height:var(--bar-h);
     flex:1; display:flex; align-items:center; gap:8px;
     padding:var(--bar-pad-v) var(--bar-pad-h);
@@ -102,7 +95,7 @@
   .hudValue{font-variant-numeric:tabular-nums; min-width:64px; text-align:right;}
   .hudGrow{flex:1; min-width:0;}
 
-  /* Gauges (Shield & Boss HP) — same height everywhere */
+  /* Gauges */
   .gauge{
     position:relative; height:12px; width:100%;
     background:var(--panel); border:2px solid var(--panel-dark);
@@ -110,11 +103,11 @@
   }
   .gauge i{
     position:absolute; inset:2px;
-    background:repeating-linear-gradient(90deg,#9ad29a 0 8px,#7fb97f 8px 16px); /* shield green */
+    background:repeating-linear-gradient(90deg,#9ad29a 0 8px,#7fb97f 8px 16px);
     transform-origin:left center; transform:scaleX(1);
   }
   .gauge.boss i{
-    background:repeating-linear-gradient(90deg,#ff6b6b 0 8px,#d94a4a 8px 16px); /* boss red */
+    background:repeating-linear-gradient(90deg,#ff6b6b 0 8px,#d94a4a 8px 16px);
     transform:scaleX(0);
   }
 
@@ -128,21 +121,21 @@
   /* Legacy boss label kept but hidden */
   .bosslabel{display:none !important;}
 
-  /* ===== Canvas fills between header and footer (expands DOWN only) ===== */
+  /* ===== Canvas fills between header and footer, centered ===== */
   canvas{
-   position:absolute;
-   top:var(--header-h);
-   left:50%;
-   transform:translateX(-50%);
-   width:388px; /* fixed gameboard width */
-   height:calc(100% - var(--header-h) - var(--footer-h)); /* <-- key line */
-   background:#020409; z-index:1;
-   image-rendering:pixelated;
-   border:2px solid var(--panel-dark);
-   box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
-}
+    position:absolute;
+    top:var(--header-h);
+    left:50%;
+    transform:translateX(-50%);
+    width:388px; /* fixed gameboard width */
+    height:calc(100% - var(--header-h) - var(--footer-h) - var(--controls-h)); /* MOBILE: space for dock */
+    background:#020409; z-index:1;
+    image-rendering:pixelated;
+    border:2px solid var(--panel-dark);
+    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+  }
 
-  /* ===== Popups (larger text; unified font inherited) ===== */
+  /* ===== Popups ===== */
   .overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:5;
            background:#00000040; padding:24px;}
   .overlay.hidden{display:none;}
@@ -150,12 +143,12 @@
     min-width:260px; max-width:360px; background:var(--panel); color:#111;
     border:2px solid var(--panel-dark);
     box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 6px 6px 0 #00000030;
-    font-size:1.25em; /* bump popup body text size */
+    font-size:1.25em;
   }
   .titlebar{
     display:flex; align-items:center; justify-content:space-between; gap:8px;
     padding:6px 8px; background:var(--accent); color:#fff; font-weight:bold;
-    font-size:1.1em; /* larger title */
+    font-size:1.1em;
   }
   .titlebar .controls{display:flex;gap:4px;}
   .winbtn{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
@@ -167,13 +160,82 @@
   .content p{margin:0;font-size:1em;line-height:1.5;}
   .actions{display:flex;justify-content:flex-end;gap:10px;padding:8px 14px 14px;}
   .btn{padding:6px 12px;background:var(--panel);border:2px solid var(--panel-dark);cursor:pointer;
-       font-size:1em; /* bigger button text */
-       box-shadow:inset -1px -1px 0 var(--panel-light),inset 1px 1px 0 var(--panel-mid);}
+       font-size:1em; box-shadow:inset -1px -1px 0 var(--panel-light),inset 1px 1px 0 var(--panel-mid);}
   .btn:hover{filter:brightness(.95);}
-  .visually-hidden{
-    position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0;
-  }
+  .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0;}
+  /* --- Make HUD text fit inside pills --- */
+.hudRow { gap: 8px; }
+.hudBlock{
+  font-size: .92em;        /* a touch smaller than body so it fits the bar */
+  line-height: 1;          /* tighter line box so it doesn't spill vertically */
+  min-width: 0;            /* allow flex children to shrink */
+  overflow: hidden;        /* guard-rail: clip if something goes wild */
+}
 
+.hudLabel{
+  flex: 0 1 auto;          /* allow label to shrink before overflowing */
+  min-width: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.hudValue{
+  flex: 0 0 auto;          /* keep numbers aligned on the right edge */
+  min-width: 56px;         /* ensures 5–6 tabular digits fit */
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Lives: keep the dots inside the pill */
+.lives{
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+.life{ width: 11px; height: 9px; } /* slightly smaller so 3–5 fit nicely */
+
+/* On small/touch screens, make HUD text a bit smaller again */
+@media (hover:none) and (pointer:coarse){
+  .hudBlock{ font-size: .88em; }
+}
+
+  /* ===== Touch controls DOCK (mobile only) ===== */
+  @media (hover:none) and (pointer:coarse) {
+    :root{ --controls-h: 112px; } /* space carved out under canvas */
+
+    #touchControls {
+      position:absolute;
+      left:0; right:0;
+      bottom:var(--footer-h);          /* sits ABOVE the footer, BELOW the canvas */
+      height:var(--controls-h);
+      padding:12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      z-index:2;
+      pointer-events:none;             /* container ignores taps; buttons accept them */
+    }
+    .tc-left, .tc-right {
+      display:flex; gap:12px;
+      pointer-events:auto;
+    }
+
+    .tc-btn{
+      min-width:64px; min-height:64px;
+      border:2px solid var(--panel-dark);
+      background:var(--panel);
+      box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 0 2px 0 #00000033;
+      font: bold 20px "MS Sans Serif", Tahoma, Verdana, sans-serif;
+      color:#111; border-radius:10px;
+      touch-action:none; user-select:none;
+    }
+    .tc-btn:active{ filter:brightness(.92); transform:translateY(1px); }
+    .tc-fire{ min-width:76px; min-height:76px; font-size:22px; }
+  }
+  @media (hover:hover) and (pointer:fine) {
+    #touchControls{ display:none; }
+  }
 </style>
 </head>
 <body>
@@ -192,45 +254,55 @@
     <!-- Legacy label kept (hidden by CSS) -->
     <div id="bossLabel" class="bosslabel">BOSS</div>
 
-    <!-- NOTE: Canvas CSS stretches between header/footer. The width stays fixed, height scales visually. -->
+    <!-- Gameboard -->
     <canvas id="game" width="388" height="420"></canvas>
+
+    <!-- Touch controls DOCK (mobile only; no overlay) -->
+    <div id="touchControls" aria-label="Touch controls">
+      <div class="tc-left">
+        <button class="tc-btn" data-key="ArrowLeft" aria-label="Move left">◀</button>
+        <button class="tc-btn" data-key="ArrowRight" aria-label="Move right">▶</button>
+      </div>
+      <div class="tc-right">
+        <button class="tc-btn tc-fire" data-key="Space" aria-label="Fire">●</button>
+      </div>
+    </div>
 
     <!-- BOTTOM: HUD -->
     <footer>
-        <!-- Row 1: Score, High, Lives -->
-        <div class="hudRow">
-          <div class="hudBlock">
-            <span class="hudLabel">Score</span>
-            <span id="hudScore" class="hudValue hudGrow">00000</span>
-          </div>
-          <div class="hudBlock">
-            <span class="hudLabel">High</span>
-            <span id="hudHigh" class="hudValue hudGrow">00000</span>
-          </div>
-          <div class="hudBlock">
-            <span class="hudLabel">You</span>
-            <div id="hearts" class="lives hudGrow"></div>
+      <!-- Row 1: Score, High, Lives -->
+      <div class="hudRow">
+        <div class="hudBlock">
+          <span class="hudLabel">Score</span>
+          <span id="hudScore" class="hudValue hudGrow">00000</span>
+        </div>
+        <div class="hudBlock">
+          <span class="hudLabel">High</span>
+          <span id="hudHigh" class="hudValue hudGrow">00000</span>
+        </div>
+        <div class="hudBlock">
+          <span class="hudLabel">You</span>
+          <div id="hearts" class="lives hudGrow"></div>
+        </div>
+      </div>
+
+      <!-- Row 2: Shield, Boss HP (side by side) -->
+      <div class="hudRow">
+        <div class="hudBlock">
+          <span class="hudLabel">Shield</span>
+          <div class="gauge hudGrow">
+            <i id="capacityFill" style="transform:scaleX(1)"></i>
           </div>
         </div>
-      
-        <!-- Row 2: Shield, Boss HP (side by side) -->
-        <div class="hudRow">
-          <div class="hudBlock">
-            <span class="hudLabel">Shield</span>
-            <div class="gauge hudGrow">
-              <i id="capacityFill" style="transform:scaleX(1)"></i>
-            </div>
+        <div class="hudBlock">
+          <span class="hudLabel">Boss</span>
+          <div id="bossBar" class="gauge boss hudGrow">
+            <i id="bossFill" style="transform:scaleX(0)"></i>
           </div>
-          <div class="hudBlock">
-            <span class="hudLabel">Boss</span>
-            <div id="bossBar" class="gauge boss hudGrow">
-              <i id="bossFill" style="transform:scaleX(0)"></i>
-            </div>
-            <span id="hudBoss" class="visually-hidden">---</span>
-          </div>
+          <span id="hudBoss" class="visually-hidden">---</span>
         </div>
-      </footer>
-      
+      </div>
+    </footer>
 
     <!-- Popups -->
     <div id="start" class="overlay">
@@ -240,15 +312,13 @@
           <div class="controls"><div class="winbtn">_</div><div class="winbtn">□</div><div class="winbtn">X</div></div>
         </div>
         <div class="content">
-         <h1>Welcome to the ultimate spam nightmare.</h1>
-         <p>Deploy spam filters, collect shield and life diamonds and defend the archive. Hold the line, or be consumed by the <strong>most weaponized marketing campaign ever sent.</strong> Arrow keys to move. Space to fire. Hope is optional.</p>         
-             <!-- ADD: Power-ups legend -->
+          <h1>Welcome to the ultimate spam nightmare.</h1>
+          <p>Deploy spam filters, collect shield and life diamonds and defend the archive. Hold the line, or be consumed by the <strong>most weaponized marketing campaign ever sent.</strong> Arrow keys to move. Space to fire. Hope is optional.</p>
         </div>
-        
         <div class="actions"><button id="btnStart" class="btn">Start</button></div>
       </div>
     </div>
-    
+
     <div id="bossIntro" class="overlay hidden">
       <div class="popup" role="dialog" aria-labelledby="bossIntroTitle">
         <div class="titlebar">
@@ -292,6 +362,62 @@
     </div>
 
   </div>
+
+  <!-- Wire touch controls by synthesizing KeyboardEvents so main.js keeps working -->
+  <script>
+    (function initTouchControls(){
+      const root = document.getElementById('touchControls');
+      if (!root) return;
+
+      const isTouch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+      if (!isTouch) return;
+
+      const active = new Map(); // pointerId -> key
+
+      function keyFor(code){
+        if (code === 'Space') return ' ';
+        return code;
+      }
+      function sendKey(code, type){
+        const evt = new KeyboardEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          code,
+          key: keyFor(code),
+          repeat: (type === 'keydown')
+        });
+        document.dispatchEvent(evt);
+      }
+
+      function onDown(e){
+        const btn = e.target.closest('.tc-btn');
+        if (!btn) return;
+        e.preventDefault(); e.stopPropagation();
+        const code = btn.dataset.key;
+        if (!code) return;
+        active.set(e.pointerId ?? Math.random(), code);
+        sendKey(code, 'keydown');
+        btn.setPointerCapture?.(e.pointerId);
+        if ('vibrate' in navigator) { try { navigator.vibrate(10); } catch(_){} }
+      }
+      function onUp(e){
+        const id = e.pointerId ?? null;
+        const code = active.get(id);
+        if (code) sendKey(code, 'keyup');
+        active.delete(id);
+      }
+
+      root.addEventListener('pointerdown', onDown, {passive:false});
+      root.addEventListener('pointerup', onUp);
+      root.addEventListener('pointercancel', onUp);
+      root.addEventListener('pointerleave', onUp);
+
+      window.addEventListener('blur', () => {
+        for (const code of active.values()) sendKey(code, 'keyup');
+        active.clear();
+      });
+    })();
+  </script>
 
   <script type="module" src="./main.js"></script>
 </body>
