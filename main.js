@@ -43,12 +43,60 @@
       const btnStart = document.getElementById('btnStart');
       const btnNext  = document.getElementById('btnNext');
       const btnAgain = document.getElementById('btnAgain');
-      const brandVictory = document.getElementById('brandVictory');
-    
+
+      const SFX_DEFS = {
+        playerFire:   { file: 'assets/sfx/player_fire.mp3',   volume: 0.6, note: 'Player cannon shot' },
+        enemyFire:    { file: 'assets/sfx/enemy_fire.mp3',    volume: 0.55, note: 'Enemy bullet launch' },
+        playerHit:    { file: 'assets/sfx/player_hit.mp3',    volume: 0.65, note: 'Shield takes damage' },
+        enemyDown:    { file: 'assets/sfx/enemy_down.mp3',    volume: 0.6, note: 'Enemy destroyed' },
+        powerupPick:  { file: 'assets/sfx/powerup_pick.mp3',  volume: 0.6, note: 'Power-up collected' },
+        shieldBreak:  { file: 'assets/sfx/shield_break.mp3',  volume: 0.65, note: 'Shield depleted / life lost' },
+        bossAlert:    { file: 'assets/sfx/boss_alert.mp3',    volume: 0.6, note: 'Boss arrival warning' }
+      };
+
+      const audioCapable = typeof Audio !== 'undefined';
+      const sfx = {};
+      let bgMusic = null;
+      if (audioCapable){
+        bgMusic = new Audio('assets/music/backing_track.mp3');
+        bgMusic.loop = true;
+        bgMusic.volume = 0.32;
+
+        for (const [key, meta] of Object.entries(SFX_DEFS)){
+          const pool = Array.from({length: 4}, () => {
+            const clip = new Audio(meta.file);
+            clip.preload = 'auto';
+            clip.volume = meta.volume;
+            return clip;
+          });
+          sfx[key] = { pool, index: 0 };
+        }
+      }
+      function playSfx(name){
+        if (!audioCapable) return;
+        const entry = sfx[name];
+        if (!entry) return;
+        const clip = entry.pool[entry.index];
+        entry.index = (entry.index + 1) % entry.pool.length;
+        try {
+          clip.currentTime = 0;
+          clip.play().catch(()=>{});
+        } catch(_) {}
+      }
+      function ensureMusicPlaying(){
+        if (!bgMusic) return;
+        try {
+          if (bgMusic.paused){
+            bgMusic.currentTime = 0;
+            bgMusic.play().catch(()=>{});
+          }
+        } catch(_) {}
+      }
+
       btnStart.onclick = () => startNewRun();
       btnNext.onclick  = () => nextLevel();
       btnAgain.onclick = () => startNewRun();
-    
+
       let keys = {};
       let state = 'menu'; // 'menu' | 'play' | 'interstitial' | 'gameover' | 'bossIntro' | 'victory'
       const playerBase = { w:40, h:12, speed:5, maxHP:3 };
@@ -705,15 +753,6 @@ const BOSS_SPRITES = {
         if (bossBar) bossBar.style.display='none';
         updateBossHUD('---');
       }
-      function toggleVictoryBrandLink(show){
-        if (!brandVictory) return;
-        const wrap = brandVictory.parentElement;
-        brandVictory.classList.toggle('brand-link--hidden', !show);
-        if (wrap && wrap.classList.contains('brandFooter')){
-          wrap.classList.toggle('brandFooter--hidden', !show);
-        }
-      }
-    
       function triggerGameOver(){
         if (state === 'gameover') return;
         clearBossIntro();
@@ -725,6 +764,7 @@ const BOSS_SPRITES = {
         if (!player || state !== 'play') return;
         if (player.hp <= 0) return;
         player.hp--;
+        playSfx('shieldBreak');
         updateHearts();
         enemyBullets = [];
         bullets = [];
@@ -742,6 +782,7 @@ const BOSS_SPRITES = {
         if (state !== 'play' || !player || player.hp <= 0) return;
         inbox = clamp(inbox - amount, 0, 1);
         updateCapacity();
+        playSfx('playerHit');
         if (inbox <= 0){
           loseLife();
         }
@@ -793,7 +834,7 @@ const BOSS_SPRITES = {
         elStart.style.display='none'; elCleared.style.display='none'; elGameOver.style.display='none';
         if (btnNext) btnNext.style.display = ''; // restore for normal stage-clears
         clearBossIntro();
-        toggleVictoryBrandLink(false);
+        ensureMusicPlaying();
         player = { x: W/2-20, y: H-40, w:playerBase.w, h:playerBase.h, speed:playerBase.speed, hp:playerBase.maxHP, cooldown:0, invuln:0 };
         bullets = [];
         enemyBullets = [];
@@ -985,6 +1026,7 @@ function showBossIntro(spec){
   bossIntroTitle.textContent = def.displayName;
   bossIntroName.textContent  = def.tagline;
   elBossIntro.style.display  = 'flex';
+  playSfx('bossAlert');
   state = 'bossIntro';
   setTicker(`${def.displayName} - STAND BY`);
 
@@ -1022,6 +1064,7 @@ function shootPlayer(){
   if (player.cooldown <= 0){
     bullets.push({ x: player.x + player.w/2 - 2, y: player.y - 10, w:4, h:10, vy:-7 });
     player.cooldown = 12;
+    playSfx('playerFire');
   }
 }
 
@@ -1074,6 +1117,7 @@ function enemyTryShoot(dt){
           kind: 'spam'
         });
       }
+      playSfx('enemyFire');
     }
   }
 }
@@ -1215,6 +1259,7 @@ function enemyTryShoot(dt){
               }
               setTicker(msg);
             }
+            playSfx('powerupPick');
             return false;
           }
           return true;
@@ -1546,6 +1591,7 @@ function enemyTryShoot(dt){
                   spawnVPNPowerUp(e.x + e.w/2, e.y);
                 }
                 addScore(20);
+                playSfx('enemyDown');
               }
             }
           }
@@ -1581,13 +1627,12 @@ function enemyTryShoot(dt){
             elCleared.querySelector('h1').textContent = `[ INBOX PURGED ]`;
             elCleared.querySelector('p').innerHTML =
               "The fluorescent sun flickers. The HR printer screams once, then sleeps. " +
-              "Calendar invites pass overhead like sirens and keep going. " +
-              "The last <em>URGENT WIRE TRANSFER</em> evaporates into office ozone. " +
-              "You sip cold coffee. It tastes like <strong>victory</strong>.<br><br>" +
-              "Press <kbd>Enter</kbd> to clock back in.";
-            toggleVictoryBrandLink(true);
+            "Calendar invites pass overhead like sirens and keep going. " +
+            "The last <em>URGENT WIRE TRANSFER</em> evaporates into office ozone. " +
+            "You sip cold coffee. It tastes like <strong>victory</strong>.<br><br>" +
+            "Press <kbd>Enter</kbd> to clock back in.";
             elCleared.style.display = 'flex';
-    
+
             setTicker('ZERO UNREAD  -  COFFEE RESERVES CRITICALLY LOW');
             return;
           }
@@ -1598,7 +1643,6 @@ function enemyTryShoot(dt){
           state = 'interstitial';
           elCleared.querySelector('h1').textContent = `[ INBOX SECURED ]`;
           elCleared.querySelector('p').textContent = 'Threat neutralized. System rebooting..';
-          toggleVictoryBrandLink(false);
           elCleared.style.display = 'flex';
           setTicker('INBOX SECURED  -  SYSTEM REBOOTING');
           const currentLevel = level;
