@@ -45,18 +45,37 @@
       const btnAgain = document.getElementById('btnAgain');
 
       const SFX_DEFS = {
-        playerFire:   { file: 'assets/sfx/player_fire.mp3',   volume: 0.6, note: 'Player cannon shot' },
+        playerFire:   { file: 'assets/sfx/player_fire.mp3',   volume: 0.6,  note: 'Player cannon shot' },
         enemyFire:    { file: 'assets/sfx/enemy_fire.mp3',    volume: 0.55, note: 'Enemy bullet launch' },
         playerHit:    { file: 'assets/sfx/player_hit.mp3',    volume: 0.65, note: 'Shield takes damage' },
-        enemyDown:    { file: 'assets/sfx/enemy_down.mp3',    volume: 0.6, note: 'Enemy destroyed' },
-        powerupPick:  { file: 'assets/sfx/powerup_pick.mp3',  volume: 0.6, note: 'Power-up collected' },
+        enemyDown:    { file: 'assets/sfx/enemy_down.mp3',    volume: 0.6,  note: 'Enemy destroyed' },
+        powerupPick:  { file: 'assets/sfx/powerup_pick.mp3',  volume: 0.6,  note: 'Power-up collected' },
         shieldBreak:  { file: 'assets/sfx/shield_break.mp3',  volume: 0.65, note: 'Shield depleted / life lost' },
-        bossAlert:    { file: 'assets/sfx/boss_alert.mp3',    volume: 0.6, note: 'Boss arrival warning' }
+        gameOver:     { file: 'assets/sfx/game_over.mp3',     volume: 0.7,  note: 'Run failed sting' },
+        victory:      { file: 'assets/sfx/victory_fanfare.mp3', volume: 0.7, note: 'Campaign victory fanfare' },
+        bossAlert:    { file: 'assets/sfx/boss_alert.mp3',    volume: 0.6,  note: 'Boss arrival warning' }
       };
+
+      function attachButton(btn, handler){
+        if (!btn) return;
+        let lastTouchTime = 0;
+        const invoke = () => handler && handler();
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          if (Date.now() - lastTouchTime < 400) return;
+          invoke();
+        });
+        btn.addEventListener('touchend', e => {
+          lastTouchTime = Date.now();
+          e.preventDefault();
+          invoke();
+        }, { passive:false });
+      }
 
       const audioCapable = typeof Audio !== 'undefined';
       const sfx = {};
       let bgMusic = null;
+      let audioUnlocked = false;
       if (audioCapable){
         bgMusic = new Audio('assets/music/backing_track.mp3');
         bgMusic.loop = true;
@@ -83,6 +102,40 @@
           clip.play().catch(()=>{});
         } catch(_) {}
       }
+      function unlockAudio(){
+        if (audioUnlocked || !audioCapable) return;
+        audioUnlocked = true;
+        document.removeEventListener('pointerdown', requestUnlock);
+        document.removeEventListener('touchstart', requestUnlock);
+        const unlockClip = (audio) => {
+          if (!audio) return;
+          const prevVolume = audio.volume;
+          audio.volume = 0;
+          audio.muted = true;
+          audio.play()
+            .then(() => {
+              audio.pause();
+              audio.currentTime = 0;
+            })
+            .finally(() => {
+              audio.volume = prevVolume;
+              audio.muted = false;
+            })
+            .catch(()=>{});
+        };
+        unlockClip(bgMusic);
+        const firstEntry = Object.values(sfx)[0];
+        if (firstEntry && firstEntry.pool && firstEntry.pool[0]){
+          unlockClip(firstEntry.pool[0]);
+        }
+      }
+      function stopMusic(){
+        if (!bgMusic) return;
+        try {
+          bgMusic.pause();
+          bgMusic.currentTime = 0;
+        } catch(_) {}
+      }
       function ensureMusicPlaying(){
         if (!bgMusic) return;
         try {
@@ -93,9 +146,13 @@
         } catch(_) {}
       }
 
-      btnStart.onclick = () => startNewRun();
-      btnNext.onclick  = () => nextLevel();
-      btnAgain.onclick = () => startNewRun();
+      const requestUnlock = () => unlockAudio();
+      document.addEventListener('pointerdown', requestUnlock, { passive:true });
+      document.addEventListener('touchstart', requestUnlock, { passive:true });
+
+      attachButton(btnStart, () => { unlockAudio(); startNewRun(); });
+      attachButton(btnNext,  () => { unlockAudio(); nextLevel(); });
+      attachButton(btnAgain, () => { unlockAudio(); startNewRun(); });
 
       let keys = {};
       let state = 'menu'; // 'menu' | 'play' | 'interstitial' | 'gameover' | 'bossIntro' | 'victory'
@@ -658,6 +715,8 @@ const BOSS_SPRITES = {
           if (!key) return;
           e.preventDefault();
           e.stopPropagation();
+          unlockAudio();
+          if (state === 'play') ensureMusicPlaying();
           active.set(e.pointerId ?? 'mouse', key);
           setKey(key, true);
           e.target.setPointerCapture?.(e.pointerId);
@@ -757,6 +816,8 @@ const BOSS_SPRITES = {
         if (state === 'gameover') return;
         clearBossIntro();
         state='gameover';
+        stopMusic();
+        playSfx('gameOver');
         setTicker('MAILBOX LOST  -  PRESS START TO TRY AGAIN');
         setTimeout(()=>elGameOver.style.display='flex',60);
       }
@@ -1308,6 +1369,7 @@ function enemyTryShoot(dt){
               });
             }
             cooldown = hpRatio > 0.65 ? 620 : hpRatio > 0.35 ? 520 : 440;
+            playSfx('enemyFire');
             boss.fire = cooldown * (boss.fireScale || 1);
             return;
           }
@@ -1356,10 +1418,12 @@ function enemyTryShoot(dt){
               enemyBullets.push(seal);
               cooldown = 520;
             }
+            playSfx('enemyFire');
             boss.fire = cooldown * (boss.fireScale || 1);
             return;
           }
-    
+
+          let bossShot = false;
           switch (def.attack) {
             case 'heartFan': {
               const offsets = [-1, 0, 1];
@@ -1376,6 +1440,7 @@ function enemyTryShoot(dt){
                 });
               });
               cooldown = 620;
+              bossShot = true;
               break;
             }
             case 'aimedShot': {
@@ -1397,6 +1462,7 @@ function enemyTryShoot(dt){
                 });
               }
               cooldown = 560;
+              bossShot = true;
               break;
             }
             case 'coinRain': {
@@ -1415,6 +1481,7 @@ function enemyTryShoot(dt){
                 });
               }
               cooldown = 620;
+              bossShot = true;
               break;
             }
             case 'royalSeal': {
@@ -1429,6 +1496,7 @@ function enemyTryShoot(dt){
               spawnSeal(-0.9);
               spawnSeal(0.9);
               cooldown = clamp(500 - level * 14, 320, 520);
+              bossShot = true;
               break;
             }
             default: {
@@ -1436,8 +1504,10 @@ function enemyTryShoot(dt){
               enemyBullets.push({ x: cx - 2, y: cy, w: 4, h: 10, vy: base, vx: 0, color: def.color, kind: 'spam' });
               enemyBullets.push({ x: cx - 2, y: cy, w: 4, h: 10, vy: base, vx: -1.1, color: def.color, kind: 'spam' });
               enemyBullets.push({ x: cx - 2, y: cy, w: 4, h: 10, vy: base, vx: 1.1, color: def.color, kind: 'spam' });
+              bossShot = true;
             }
           }
+          if (bossShot) playSfx('enemyFire');
           boss.fire = cooldown * (boss.fireScale || 1);
         }
       }
@@ -1622,15 +1692,17 @@ function enemyTryShoot(dt){
             boss = null;
             hideBossUI();
             state = 'victory';
-    
+
             if (btnNext) btnNext.style.display = 'none';
+            stopMusic();
+            playSfx('victory');
             elCleared.querySelector('h1').textContent = `[ INBOX PURGED ]`;
             elCleared.querySelector('p').innerHTML =
               "The fluorescent sun flickers. The HR printer screams once, then sleeps. " +
-            "Calendar invites pass overhead like sirens and keep going. " +
-            "The last <em>URGENT WIRE TRANSFER</em> evaporates into office ozone. " +
-            "You sip cold coffee. It tastes like <strong>victory</strong>.<br><br>" +
-            "Press <kbd>Enter</kbd> to clock back in.";
+              "Calendar invites pass overhead like sirens and keep going. " +
+              "The last <em>URGENT WIRE TRANSFER</em> evaporates into office ozone. " +
+              "You sip cold coffee. It tastes like <strong>victory</strong>.<br><br>" +
+              "Press <kbd>Enter</kbd> to clock back in.";
             elCleared.style.display = 'flex';
 
             setTicker('ZERO UNREAD  -  COFFEE RESERVES CRITICALLY LOW');
