@@ -628,7 +628,7 @@ const BOSS_SPRITES = {
       
         // Safety: release keys when the overlay hides or page loses focus
         window.addEventListener('blur', () => {
-          ['ArrowLeft','ArrowRight','Space'].forEach(k => setKey(k,false));
+          ['ArrowLeft','ArrowRight','Space','KeyA','KeyD'].forEach(k => setKey(k,false));
           active.clear();
         });
       })();
@@ -1404,8 +1404,10 @@ function enemyTryShoot(dt){
     
         const frameScale = dt / 16.67;
     
-        if (keys['ArrowLeft']) player.x -= player.speed * frameScale;
-        if (keys['ArrowRight']) player.x += player.speed * frameScale;
+        const moveLeft = keys['ArrowLeft'] || keys['KeyA'];
+        const moveRight = keys['ArrowRight'] || keys['KeyD'];
+        if (moveLeft && !moveRight) player.x -= player.speed * frameScale;
+        if (moveRight && !moveLeft) player.x += player.speed * frameScale;
         if (keys['Space']) shootPlayer();
         player.cooldown = Math.max(0, player.cooldown - frameScale);
         player.invuln = Math.max(0, (player.invuln || 0) - dt);
