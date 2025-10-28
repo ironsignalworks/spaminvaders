@@ -43,6 +43,7 @@
       const btnStart = document.getElementById('btnStart');
       const btnNext  = document.getElementById('btnNext');
       const btnAgain = document.getElementById('btnAgain');
+      const brandVictory = document.getElementById('brandVictory');
     
       btnStart.onclick = () => startNewRun();
       btnNext.onclick  = () => nextLevel();
@@ -704,6 +705,14 @@ const BOSS_SPRITES = {
         if (bossBar) bossBar.style.display='none';
         updateBossHUD('---');
       }
+      function toggleVictoryBrandLink(show){
+        if (!brandVictory) return;
+        const wrap = brandVictory.parentElement;
+        brandVictory.classList.toggle('brand-link--hidden', !show);
+        if (wrap && wrap.classList.contains('brandFooter')){
+          wrap.classList.toggle('brandFooter--hidden', !show);
+        }
+      }
     
       function triggerGameOver(){
         if (state === 'gameover') return;
@@ -784,6 +793,7 @@ const BOSS_SPRITES = {
         elStart.style.display='none'; elCleared.style.display='none'; elGameOver.style.display='none';
         if (btnNext) btnNext.style.display = ''; // restore for normal stage-clears
         clearBossIntro();
+        toggleVictoryBrandLink(false);
         player = { x: W/2-20, y: H-40, w:playerBase.w, h:playerBase.h, speed:playerBase.speed, hp:playerBase.maxHP, cooldown:0, invuln:0 };
         bullets = [];
         enemyBullets = [];
@@ -1575,6 +1585,7 @@ function enemyTryShoot(dt){
               "The last <em>URGENT WIRE TRANSFER</em> evaporates into office ozone. " +
               "You sip cold coffee. It tastes like <strong>victory</strong>.<br><br>" +
               "Press <kbd>Enter</kbd> to clock back in.";
+            toggleVictoryBrandLink(true);
             elCleared.style.display = 'flex';
     
             setTicker('ZERO UNREAD  -  COFFEE RESERVES CRITICALLY LOW');
@@ -1587,6 +1598,7 @@ function enemyTryShoot(dt){
           state = 'interstitial';
           elCleared.querySelector('h1').textContent = `[ INBOX SECURED ]`;
           elCleared.querySelector('p').textContent = 'Threat neutralized. System rebooting..';
+          toggleVictoryBrandLink(false);
           elCleared.style.display = 'flex';
           setTicker('INBOX SECURED  -  SYSTEM REBOOTING');
           const currentLevel = level;
