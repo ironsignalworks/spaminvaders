@@ -1,218 +1,200 @@
 (() => {
-      const canvas = document.getElementById('game');
-      const ctx = canvas.getContext('2d');
-      const W = canvas.width, H = canvas.height;
-    
-      // === NEW: global scale (10% shrink) & longer interstitial timing ===
-      const GLOBAL_SCALE = 0.9;          // 10% smaller
-      const INTERSTITIAL_MS = 2600;      // level enter screen linger after boss defeat (non-final)
-    
-      // Apply 10% shrink to an optional wrapper (#gameRoot) or fallback to body
-      applyGlobalScale(GLOBAL_SCALE);
-      function applyGlobalScale(s){
-        const root = document.getElementById('gameRoot') || document.body;
-        // Primary (Chromium): zoom is crisp and affects layout
-        root.style.zoom = String(s);
-    
-        // Fallback (Safari/Firefox): transform; affects visuals only, so anchor it neatly
-        root.style.transformOrigin = 'top center';
-        root.style.transform = `scale(${s})`;
-    
-        // Helpful for pixel art; may or may not be desired at non-integer scales
-        root.style.imageRendering = 'pixelated';
-      }
-    
-      const hudLevel = document.getElementById('hudLevel');
-      const capacityFill = document.getElementById('capacityFill');
-      const bossBar = document.getElementById('bossBar');
-      const bossFill = document.getElementById('bossFill');
-      const bossLabel = document.getElementById('bossLabel');
-      const hudScore = document.getElementById('hudScore');
-      const hudHigh = document.getElementById('hudHigh');
-      const hudBoss = document.getElementById('hudBoss');
-      const heartsEl = document.getElementById('hearts');
-      const tickerText = document.querySelector('.tickerText');
-    
-      const elStart = document.getElementById('start');
-      const elCleared = document.getElementById('cleared');
-      const elGameOver = document.getElementById('gameover');
-      const elBossIntro = document.getElementById('bossIntro');
-      const bossIntroTitle = document.getElementById('bossIntroTitle');
-      const bossIntroName = document.getElementById('bossIntroName');
-    
-      const btnStart = document.getElementById('btnStart');
-      const btnNext  = document.getElementById('btnNext');
-      const btnAgain = document.getElementById('btnAgain');
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
 
-      const SFX_DEFS = {
-        playerFire:   { file: 'assets/sfx/player_fire.mp3',   volume: 0.6,  note: 'Player cannon shot' },
-        enemyFire:    { file: 'assets/sfx/enemy_fire.mp3',    volume: 0.55, note: 'Enemy bullet launch' },
-        playerHit:    { file: 'assets/sfx/player_hit.mp3',    volume: 0.65, note: 'Shield takes damage' },
-        enemyDown:    { file: 'assets/sfx/enemy_down.mp3',    volume: 0.6,  note: 'Enemy destroyed' },
-        powerupPick:  { file: 'assets/sfx/powerup_pick.mp3',  volume: 0.6,  note: 'Power-up collected' },
-        shieldBreak:  { file: 'assets/sfx/shield_break.mp3',  volume: 0.65, note: 'Shield depleted / life lost' },
-        gameOver:     { file: 'assets/sfx/game_over.mp3',     volume: 0.7,  note: 'Run failed sting' },
-        victory:      { file: 'assets/sfx/victory_fanfare.mp3', volume: 0.7, note: 'Campaign victory fanfare' },
-        bossAlert:    { file: 'assets/sfx/boss_alert.mp3',    volume: 0.6,  note: 'Boss arrival warning' }
-      };
+  // === Global scale (10% shrink) & longer interstitial timing ===
+  const GLOBAL_SCALE = 0.9;          // 10% smaller
+  const INTERSTITIAL_MS = 2600;      // level enter screen linger after boss defeat (non-final)
 
-      function attachButton(btn, handler){
-        if (!btn) return;
-        let lastTouchTime = 0;
-        const invoke = () => handler && handler();
-        btn.addEventListener('click', e => {
-          e.preventDefault();
-          if (Date.now() - lastTouchTime < 400) return;
-          invoke();
-        });
-        btn.addEventListener('touchend', e => {
-          lastTouchTime = Date.now();
-          e.preventDefault();
-          invoke();
-        }, { passive:false });
-      }
+  // Apply 10% shrink to an optional wrapper (#gameRoot) or fallback to body
+  applyGlobalScale(GLOBAL_SCALE);
+  function applyGlobalScale(s){
+    const root = document.getElementById('gameRoot') || document.body;
 
-      const audioCapable = typeof Audio !== 'undefined';
-      const sfx = {};
-      let bgMusic = null;
-      let audioUnlocked = false;
-      if (audioCapable){
-        bgMusic = new Audio('assets/music/backing_track.mp3');
-        bgMusic.loop = true;
-        bgMusic.volume = 0.32;
-
-        for (const [key, meta] of Object.entries(SFX_DEFS)){
-          const pool = Array.from({length: 4}, () => {
-            const clip = new Audio(meta.file);
-            clip.preload = 'auto';
-            clip.volume = meta.volume;
-            return clip;
-          });
-          sfx[key] = { pool, index: 0 };
-        }
-      }
-      function playSfx(name){
-        if (!audioCapable) return;
-        const entry = sfx[name];
-        if (!entry) return;
-        const clip = entry.pool[entry.index];
-        entry.index = (entry.index + 1) % entry.pool.length;
-        try {
-          clip.currentTime = 0;
-          clip.play().catch(()=>{});
-        } catch(_) {}
-      }
-      function unlockAudio(){
-        if (audioUnlocked || !audioCapable) return;
-        audioUnlocked = true;
-        document.removeEventListener('pointerdown', requestUnlock);
-        document.removeEventListener('touchstart', requestUnlock);
-        const unlockClip = (audio) => {
-          if (!audio) return;
-          const prevVolume = audio.volume;
-          audio.volume = 0;
-          audio.muted = true;
-          audio.play()
-            .then(() => {
-              audio.pause();
-              audio.currentTime = 0;
-            })
-            .finally(() => {
-              audio.volume = prevVolume;
-              audio.muted = false;
-            })
-            .catch(()=>{});
-        };
-        unlockClip(bgMusic);
-        const firstEntry = Object.values(sfx)[0];
-        if (firstEntry && firstEntry.pool && firstEntry.pool[0]){
-          unlockClip(firstEntry.pool[0]);
-        }
-      }
-      function stopMusic(){
-        if (!bgMusic) return;
-        try {
-          bgMusic.pause();
-          bgMusic.currentTime = 0;
-        } catch(_) {}
-      }
-      function ensureMusicPlaying(){
-        if (!bgMusic) return;
-        try {
-          if (bgMusic.paused){
-            bgMusic.currentTime = 0;
-            bgMusic.play().catch(()=>{});
-          }
-        } catch(_) {}
-      }
-
-      const requestUnlock = () => unlockAudio();
-      document.addEventListener('pointerdown', requestUnlock, { passive:true });
-      document.addEventListener('touchstart', requestUnlock, { passive:true });
-
-      attachButton(btnStart, () => { unlockAudio(); startNewRun(); });
-      attachButton(btnNext,  () => { unlockAudio(); nextLevel(); });
-      attachButton(btnAgain, () => { unlockAudio(); startNewRun(); });
-
-      let keys = {};
-      let state = 'menu'; // 'menu' | 'play' | 'interstitial' | 'gameover' | 'bossIntro' | 'victory'
-      const playerBase = { w:40, h:12, speed:5, maxHP:3 };
-      let player, bullets, enemyBullets, boss, score, level, inbox;
-      let swarm;
-      let lastTime = 0;
-      let highScore = 0;
-      let princeFX = null;
-      let pendingBossSpec = null;
-      let bossIntroTimeout = null;
-      let currentEntry = null;
-      let currentEntryId = null;
-      let currentBossDef = null;
-      let currentSubject = '';
-      let subjectCycle = 0;
-      let powerUps = [];
-    
-      const CAMPAIGN = [
-        { id:1, title:"Clickbait Cloud",  tone:"funny / tutorial", palette:["#aefaff","#b8ffd8"], subjects:["Singles In Your Area.exe","Guaranteed Weight Loss (No Effort Required)","5% Off Something Stupid"], boss:"influencer" },
-        { id:2, title:"Phishing Swarm",  tone:"office anxiety",   palette:["#ffc14a","#ff5a2b"], subjects:["Urgent Invoice Attached!","Re: Re: Re: Final Notice","Free Vacation Voucher (Limited Time!)"], boss:"phishmaster" },
-        { id:3, title:"Crypto Carnage",   tone:"neon greed",       palette:["#00ff99","#ff00aa"], subjects:["Crypto Goes 1000x Tonight!!!","Exclusive NFT Opportunity"], boss:"coinlord" },
-        { id:4, title:"Royal Scam",       tone:"theatrical corruption", palette:["#ffd24a","#b21b1b"], subjects:["Prince Requests Your Aid (Re: Inheritance Transfer)"], boss:"prince" }
-      ];
-    
-      const BOSSES = {
-        influencer: { id:'influencer', displayName:'INFLUENCER.EXE', tagline:'Smash that subscribe button or perish.', attack:'heartFan', color:'#ff6ad5', accent:'#ffffff', size:{w:120,h:80}, speed:1.06, approachY:108, approachSpeed:0.06 },
-        phishmaster:{ id:'phishmaster',displayName:'PHISHMASTER 3000', tagline:'Your credentials are my currency.', attack:'aimedShot', color:'#ff8a33', accent:'#ffe7c2', size:{w:140,h:90}, speed:0.96, approachY:112, approachSpeed:0.052 },
-        coinlord:   { id:'coinlord',   displayName:'COINLORD .v3', tagline:'In volatility we trust.', attack:'coinRain', color:'#00ff99', accent:'#ff00aa', size:{w:170,h:90}, speed:1.08, approachY:118, approachSpeed:0.048 },
-        prince:     { id:'prince',     displayName:'NIGERIAN PRINCE AI v7.3', tagline:'One last favor, my trusted friend...', attack:'royalSeal', color:'#ffd24a', accent:'#b21b1b', size:{w:96,h:96}, speed:0.94, approachY:110, approachSpeed:0.05 }
-      };
-    
-      // near your other timing constants
-const BOSS_INTRO_MS = 3500;   // << make it as long as you want
-const btnIntroOk = document.getElementById('btnIntroOk');
-
-function spawnBossAfterIntro(spec){
-  elBossIntro.style.display = 'none';
-  state = 'play';
-  spawnBoss(spec);
-  pendingBossSpec = null;
-  bossIntroTimeout = null;
-  requestAnimationFrame(loop);
-}
-
-if (btnIntroOk){
-  btnIntroOk.onclick = () => {
-    if (pendingBossSpec){
-      if (bossIntroTimeout) { clearTimeout(bossIntroTimeout); bossIntroTimeout = null; }
-      spawnBossAfterIntro(pendingBossSpec);
+    // Prefer CSS zoom if supported (Chromium), otherwise transform for FF/Safari.
+    const supportsZoom = typeof CSS !== 'undefined' && CSS.supports && CSS.supports('zoom', '1');
+    if (supportsZoom) {
+      root.style.zoom = String(s);
+      root.style.transform = '';
     } else {
-      elBossIntro.style.display = 'none';
-      state = 'play';
+      root.style.transformOrigin = 'top center';
+      root.style.transform = `scale(${s})`;
     }
-  };
-}
 
-      /* ========= Boss Sprite Registry ========= */
-/* Reuses drawSpriteCharMap(ctx, sprite, pal, x, y, scale) */
-const BOSS_SPRITES = {
+    // Helpful for pixel art
+    root.style.imageRendering = 'pixelated';
+  }
+
+  const hudLevel = document.getElementById('hudLevel');
+  const capacityFill = document.getElementById('capacityFill');
+  const bossBar = document.getElementById('bossBar');
+  const bossFill = document.getElementById('bossFill');
+  const bossLabel = document.getElementById('bossLabel');
+  const hudScore = document.getElementById('hudScore');
+  const hudHigh = document.getElementById('hudHigh');
+  const hudBoss = document.getElementById('hudBoss');
+  const heartsEl = document.getElementById('hearts');
+  const tickerText = document.querySelector('.tickerText');
+
+  const elStart = document.getElementById('start');
+  const elCleared = document.getElementById('cleared');
+  const elGameOver = document.getElementById('gameover');
+  const elBossIntro = document.getElementById('bossIntro');
+  const bossIntroTitle = document.getElementById('bossIntroTitle');
+  const bossIntroName = document.getElementById('bossIntroName');
+
+  const btnStart = document.getElementById('btnStart');
+  const btnNext  = document.getElementById('btnNext');
+  const btnAgain = document.getElementById('btnAgain');
+  const btnIntroOk = document.getElementById('btnIntroOk');
+
+  const SFX_DEFS = {
+    playerFire:   { file: 'assets/sfx/player_fire.mp3',   volume: 0.6,  note: 'Player cannon shot' },
+    enemyFire:    { file: 'assets/sfx/enemy_fire.mp3',    volume: 0.55, note: 'Enemy bullet launch' },
+    playerHit:    { file: 'assets/sfx/player_hit.mp3',    volume: 0.65, note: 'Shield takes damage' },
+    enemyDown:    { file: 'assets/sfx/enemy_down.mp3',    volume: 0.6,  note: 'Enemy destroyed' },
+    powerupPick:  { file: 'assets/sfx/powerup_pick.mp3',  volume: 0.6,  note: 'Power-up collected' },
+    shieldBreak:  { file: 'assets/sfx/shield_break.mp3',  volume: 0.65, note: 'Shield depleted / life lost' },
+    gameOver:     { file: 'assets/sfx/game_over.mp3',     volume: 0.7,  note: 'Run failed sting' },
+    victory:      { file: 'assets/sfx/victory_fanfare.mp3', volume: 0.7, note: 'Campaign victory fanfare' },
+    bossAlert:    { file: 'assets/sfx/boss_alert.mp3',    volume: 0.6,  note: 'Boss arrival warning' }
+  };
+
+  function attachButton(btn, handler){
+    if (!btn) return;
+    let lastTouchTime = 0;
+    const invoke = () => handler && handler();
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      if (Date.now() - lastTouchTime < 400) return;
+      invoke();
+    });
+    btn.addEventListener('touchend', e => {
+      lastTouchTime = Date.now();
+      e.preventDefault();
+      invoke();
+    }, { passive:false });
+  }
+
+  const audioCapable = typeof Audio !== 'undefined';
+  const sfx = {};
+  let bgMusic = null;
+  let audioUnlocked = false;
+  if (audioCapable){
+    bgMusic = new Audio('assets/music/backing_track.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.32;
+
+    for (const [key, meta] of Object.entries(SFX_DEFS)){
+      const pool = Array.from({length: 4}, () => {
+        const clip = new Audio(meta.file);
+        clip.preload = 'auto';
+        clip.volume = meta.volume;
+        return clip;
+      });
+      sfx[key] = { pool, index: 0 };
+    }
+  }
+  function playSfx(name){
+    if (!audioCapable) return;
+    const entry = sfx[name];
+    if (!entry) return;
+    const clip = entry.pool[entry.index];
+    entry.index = (entry.index + 1) % entry.pool.length;
+    try {
+      clip.currentTime = 0;
+      clip.play().catch(()=>{});
+    } catch(_) {}
+  }
+  function unlockAudio(){
+    if (audioUnlocked || !audioCapable) return;
+    audioUnlocked = true;
+    document.removeEventListener('pointerdown', requestUnlock);
+    document.removeEventListener('touchstart', requestUnlock);
+    const unlockClip = (audio) => {
+      if (!audio) return;
+      const prevVolume = audio.volume;
+      audio.volume = 0;
+      audio.muted = true;
+      audio.play()
+        .then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+        })
+        .finally(() => {
+          audio.volume = prevVolume;
+          audio.muted = false;
+        })
+        .catch(()=>{});
+    };
+    unlockClip(bgMusic);
+    const firstEntry = Object.values(sfx)[0];
+    if (firstEntry && firstEntry.pool && firstEntry.pool[0]){
+      unlockClip(firstEntry.pool[0]);
+    }
+  }
+  function stopMusic(){
+    if (!bgMusic) return;
+    try {
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+    } catch(_) {}
+  }
+  function ensureMusicPlaying(){
+    if (!bgMusic) return;
+    try {
+      if (bgMusic.paused){
+        bgMusic.currentTime = 0;
+        bgMusic.play().catch(()=>{});
+      }
+    } catch(_) {}
+  }
+
+  const requestUnlock = () => unlockAudio();
+  document.addEventListener('pointerdown', requestUnlock, { passive:true });
+  document.addEventListener('touchstart', requestUnlock, { passive:true });
+
+  attachButton(btnStart, () => { unlockAudio(); startNewRun(); });
+  attachButton(btnNext,  () => { unlockAudio(); nextLevel(); });
+  attachButton(btnAgain, () => { unlockAudio(); startNewRun(); });
+
+  let keys = {};
+  let state = 'menu'; // 'menu' | 'play' | 'interstitial' | 'gameover' | 'bossIntro' | 'victory'
+  const playerBase = { w:40, h:12, speed:5, maxHP:3 };
+  let player, bullets, enemyBullets, boss, score, level, inbox;
+  let swarm;
+  let lastTime = 0;
+  let highScore = 0;
+  let princeFX = null;
+  let pendingBossSpec = null;
+  let bossIntroTimeout = null;
+  let currentEntry = null;
+  let currentEntryId = null;
+  let currentBossDef = null;
+  let currentSubject = '';
+  let subjectCycle = 0;
+  let powerUps = [];
+
+  const CAMPAIGN = [
+    { id:1, title:"Clickbait Cloud",  tone:"funny / tutorial", palette:["#aefaff","#b8ffd8"], subjects:["Singles In Your Area.exe","Guaranteed Weight Loss (No Effort Required)","5% Off Something Stupid"], boss:"influencer" },
+    { id:2, title:"Phishing Swarm",  tone:"office anxiety",   palette:["#ffc14a","#ff5a2b"], subjects:["Urgent Invoice Attached!","Re: Re: Re: Final Notice","Free Vacation Voucher (Limited Time!)"], boss:"phishmaster" },
+    { id:3, title:"Crypto Carnage",   tone:"neon greed",       palette:["#00ff99","#ff00aa"], subjects:["Crypto Goes 1000x Tonight!!!","Exclusive NFT Opportunity"], boss:"coinlord" },
+    { id:4, title:"Royal Scam",       tone:"theatrical corruption", palette:["#ffd24a","#b21b1b"], subjects:["Prince Requests Your Aid (Re: Inheritance Transfer)"], boss:"prince" }
+  ];
+
+  const BOSSES = {
+    influencer: { id:'influencer', displayName:'INFLUENCER.EXE', tagline:'Smash that subscribe button or perish.', attack:'heartFan', color:'#ff6ad5', accent:'#ffffff', size:{w:120,h:80}, speed:1.06, approachY:108, approachSpeed:0.06 },
+    phishmaster:{ id:'phishmaster',displayName:'PHISHMASTER 3000', tagline:'Your credentials are my currency.', attack:'aimedShot', color:'#ff8a33', accent:'#ffe7c2', size:{w:140,h:90}, speed:0.96, approachY:112, approachSpeed:0.052 },
+    coinlord:   { id:'coinlord',   displayName:'COINLORD .v3', tagline:'In volatility we trust.', attack:'coinRain', color:'#00ff99', accent:'#ff00aa', size:{w:170,h:90}, speed:1.08, approachY:118, approachSpeed:0.048 },
+    prince:     { id:'prince',     displayName:'NIGERIAN PRINCE AI v7.3', tagline:'One last favor, my trusted friend...', attack:'royalSeal', color:'#ffd24a', accent:'#b21b1b', size:{w:96,h:96}, speed:0.94, approachY:110, approachSpeed:0.05 }
+  };
+
+  const BOSS_INTRO_MS = 3500;
+
+  /* ========= Boss Sprite Registry ========= */
+  /* Reuses drawSpriteCharMap(ctx, sprite, pal, x, y, scale) */
+  const BOSS_SPRITES = {
     influencer: {
       scale: 4,
       pal: {
@@ -285,7 +267,7 @@ const BOSS_SPRITES = {
         ]
       }
     },
-  
+
     phishmaster: {
       scale: 3,
       pal: {
@@ -296,7 +278,7 @@ const BOSS_SPRITES = {
         "h": "#a7b5c7",
         "b": "#71c9ff",
         "r": "#ff5a2b",
-        "m": "#a7b5c7"   // added so 'm' pixels render
+        "m": "#a7b5c7"
       },
       frames: {
         idle: [
@@ -359,7 +341,7 @@ const BOSS_SPRITES = {
         ]
       }
     },
-  
+
     coinlord: {
       scale: 3,
       pal: {
@@ -431,121 +413,121 @@ const BOSS_SPRITES = {
         ]
       }
     },
-  
+
     // Prince keeps dedicated renderer
     prince: {}
   };
-     
-      const PRINCE_PAL32 = {
-        ".": null,"k":"#0b0f12","b":"#0e1720","C":"#ffd24a","c":"#e6b93f","J":"#ff3a3a","j":"#ff9f9f","S":"#f5cc66","s":"#e1b652","o":"#b88f33","e":"#f2f7ff","n":"#11151a","g":"#18a261","G":"#0f6f41","r":"#ffdf6b","R":"#caa23b","w":"#ffffff","W":"#e6eef6","E":"#4b5663","d":"#d32b2b","D":"#b31f1f"
-      };
+
+  const PRINCE_PAL32 = {
+    ".": null,"k":"#0b0f12","b":"#0e1720","C":"#ffd24a","c":"#e6b93f","J":"#ff3a3a","j":"#ff9f9f","S":"#f5cc66","s":"#e1b652","o":"#b88f33","e":"#f2f7ff","n":"#11151a","g":"#18a261","G":"#0f6f41","r":"#ffdf6b","R":"#caa23b","w":"#ffffff","W":"#e6eef6","E":"#4b5663","d":"#d32b2b","D":"#b31f1f"
+  };
+
+  const PRINCE32_IDLE_A = [
+    "..kk..CCCCCCCC..kk..............",
+    ".kkCJJCCCCCCCCJJCkk.............",
+    ".kCCCCCCCCCCCCCCCCk.............",
+    "..kCCCcCCCCCCCCcCCk.............",
+    "...kkk..kkkkkk..kkk.............",
+    "...k..sSSSSSSSSs..k.............",
+    "..k.sSSssssssssSSs.k............",
+    "..k.sSse..nn..eSsS.k............",
+    "..k.sSSssssssssSSs.k............",
+    "..k..sSSSSSSSSSSs..k............",
+    "...k..sooooooooS..k.............",
+    "...k...sooooooS...k.............",
+    "...kk...soooos...kk.............",
+    "....kk...ssss...kk..............",
+    ".....kRk......kRk...............",
+    "...kkggggggggggggkk.............",
+    "..kgGGgggggggggggGGgk...........",
+    ".kgGgGRrrrrrrrrRGgGgk...........",
+    ".kgGgGRrwwEwwrRGgGgk............",
+    ".kgGgGRrWwEwWrRGgGgk............",
+    ".kgGgGRrrrrrrrrRGgGgk............",
+    ".kgGGggGGgggggggGGgk.............",
+    "..kggggggggggGGggggk............",
+    "...kkGggggggGGgggkk.............",
+    "....kGGGGGGGGGGGGGk.............",
+    ".....kGGGGGGGGGGGk..............",
+    "......kGGGGGGGGGk...............",
+    ".......kkkkkkkkk................",
+    "........k.....k.................",
+    "........k.....k.................",
+    ".........kkkkk..................",
+    "................................"
+  ];
+
+  const PRINCE32_IDLE_B = [
+    "..kk..CCCCCCCC..kk..............",
+    ".kkCjJCCCCCCCCJjCkk.............",
+    ".kCCCCCCCCCCCCCCCCk.............",
+    "..kCCCcCCCCCCCCcCCk.............",
+    "...kkk..kkkkkk..kkk.............",
+    "...k..sSSSSSSSSs..k.............",
+    "..k.sSSssssssssSSs.k............",
+    "..k.sSse..nn..eSsS.k............",
+    "..k.sSSssssssssSSs.k............",
+    "..k..sSSSSSSSSSSs..k............",
+    "...k..sooooooooS..k.............",
+    "...k...sooooooS...k.............",
+    "...kk...soooos...kk.............",
+    "....kk...ssss...kk..............",
+    ".....kRk......kRk...............",
+    "...kkggggGGggggggkk.............",
+    "..kgGGggggGGgggggGGgk...........",
+    ".kgGgGRrrrrrrrrRGgGk.............",
+    ".kgGgGRrWwEwWrRGgGk.............",
+    ".kgGgGRrwwEwwrRGgGk.............",
+    ".kgGgGRrrrrrrrrRGgGk.............",
+    ".kgGGgggggggggggGGgk.............",
+    "..kggggggggggggggggk............",
+    "...kkGggggggGGgggkk.............",
+    "....kGGGGGGGGGGGGGk.............",
+    ".....kGGGGGGGGGGGk..............",
+    "......kGGGGGGGGGk...............",
+    ".......kkkkkkkkk................",
+    "........k.....k.................",
+    "........k.....k.................",
+    ".........kkkkk..................",
+    "................................"
+  ];
+
+  const PRINCE32_HURT = [
+    "..kk..CCCCCCCC..kk..............",
+    ".kkCJJCCCCCCCCJJCkk.............",
+    ".kCCCCCCCCCCCCCCCCk.............",
+    "..kCCCcCCCCCCCCcCCk.............",
+    "...kkk..kbbbbk..kkk.............",
+    "...k..sSSSSSSSSs..k.............",
+    "..k.SSSSSssssSSSS.k............",
+    "..k.sSse..nn..eSsS.k............",
+    "..k.SSSSSssssSSSS.k............",
+    "..k..sSSSSSSSSSSs..k............",
+    "...k..sooooooooS..k.............",
+    "...k...sooooooS...k.............",
+    "...kk...soooos...kk.............",
+    "....kk...ssss...kk..............",
+    ".....kRk......kRk...............",
+    "...kkggggggggggggkk.............",
+    "..kgGGgggggggggggGGgk...........",
+    ".kgGgGRrRRRRRRrRGgGgk...........",
+    ".kgGgGRrWwEwWrRGgGgk............",
+    ".kgGgGRrwwEwwrRGgGgk............",
+    ".kgGgGRrRRRRRRrRGgGgk............",
+    ".kgGGgggggggggggGGgk.............",
+    "..kggGGgggggggggGGgk............",
+    "...kkGggggggGGgggkk.............",
+    "....kGGGGGGGGGGGGGk.............",
+    ".....kGGGGGGGGGGGk..............",
+    "......kGGGGGGGGGk...............",
+    ".......kkkkkkkkk................",
+    "........k.....k.................",
+    "........k.....k.................",
+    ".........kkkkk..................",
+    "................................"
+  ];
     
-      const PRINCE32_IDLE_A = [
-        "..kk..CCCCCCCC..kk..............",
-        ".kkCJJCCCCCCCCJJCkk.............",
-        ".kCCCCCCCCCCCCCCCCk.............",
-        "..kCCCcCCCCCCCCcCCk.............",
-        "...kkk..kkkkkk..kkk.............",
-        "...k..sSSSSSSSSs..k.............",
-        "..k.sSSssssssssSSs.k............",
-        "..k.sSse..nn..eSsS.k............",
-        "..k.sSSssssssssSSs.k............",
-        "..k..sSSSSSSSSSSs..k............",
-        "...k..sooooooooS..k.............",
-        "...k...sooooooS...k.............",
-        "...kk...soooos...kk.............",
-        "....kk...ssss...kk..............",
-        ".....kRk......kRk...............",
-        "...kkggggggggggggkk.............",
-        "..kgGGgggggggggggGGgk...........",
-        ".kgGgGRrrrrrrrrRGgGgk...........",
-        ".kgGgGRrwwEwwrRGgGgk............",
-        ".kgGgGRrWwEwWrRGgGgk............",
-        ".kgGgGRrrrrrrrrRGgGgk............",
-        ".kgGGggGGgggggggGGgk.............",
-        "..kggggggggggGGggggk............",
-        "...kkGggggggGGgggkk.............",
-        "....kGGGGGGGGGGGGGk.............",
-        ".....kGGGGGGGGGGGk..............",
-        "......kGGGGGGGGGk...............",
-        ".......kkkkkkkkk................",
-        "........k.....k.................",
-        "........k.....k.................",
-        ".........kkkkk..................",
-        "................................"
-      ];
-    
-      const PRINCE32_IDLE_B = [
-        "..kk..CCCCCCCC..kk..............",
-        ".kkCjJCCCCCCCCJjCkk.............",
-        ".kCCCCCCCCCCCCCCCCk.............",
-        "..kCCCcCCCCCCCCcCCk.............",
-        "...kkk..kkkkkk..kkk.............",
-        "...k..sSSSSSSSSs..k.............",
-        "..k.sSSssssssssSSs.k............",
-        "..k.sSse..nn..eSsS.k............",
-        "..k.sSSssssssssSSs.k............",
-        "..k..sSSSSSSSSSSs..k............",
-        "...k..sooooooooS..k.............",
-        "...k...sooooooS...k.............",
-        "...kk...soooos...kk.............",
-        "....kk...ssss...kk..............",
-        ".....kRk......kRk...............",
-        "...kkggggGGggggggkk.............",
-        "..kgGGgggggggggggGGgk...........",
-        ".kgGgGRrrrrrrrrRGgGk............",
-        ".kgGgGRrWwEwWrRGgGk.............",
-        ".kgGgGRrwwEwwrRGgGk.............",
-        ".kgGgGRrrrrrrrrRGgGk.............",
-        ".kgGGgggggggggggGGgk.............",
-        "..kggggggggggggggggk............",
-        "...kkGggggggGGgggkk.............",
-        "....kGGGGGGGGGGGGGk.............",
-        ".....kGGGGGGGGGGGk..............",
-        "......kGGGGGGGGGk...............",
-        ".......kkkkkkkkk................",
-        "........k.....k.................",
-        "........k.....k.................",
-        ".........kkkkk..................",
-        "................................"
-      ];
-    
-      const PRINCE32_HURT = [
-        "..kk..CCCCCCCC..kk..............",
-        ".kkCJJCCCCCCCCJJCkk.............",
-        ".kCCCCCCCCCCCCCCCCk.............",
-        "..kCCCcCCCCCCCCcCCk.............",
-        "...kkk..kbbbbk..kkk.............",
-        "...k..sSSSSSSSSs..k.............",
-        "..k.SSSSSssssSSSS.k............",
-        "..k.sSse..nn..eSsS.k............",
-        "..k.SSSSSssssSSSS.k............",
-        "..k..sSSSSSSSSSSs..k............",
-        "...k..sooooooooS..k.............",
-        "...k...sooooooS...k.............",
-        "...kk...soooos...kk.............",
-        "....kk...ssss...kk..............",
-        ".....kRk......kRk...............",
-        "...kkggggggggggggkk.............",
-        "..kgGGgggggggggggGGgk...........",
-        ".kgGgGRrRRRRRRrRGgGgk...........",
-        ".kgGgGRrWwEwWrRGgGgk............",
-        ".kgGgGRrwwEwwrRGgGgk............",
-        ".kgGgGRrRRRRRRrRGgGgk............",
-        ".kgGGgggggggggggGGgk.............",
-        "..kggGGgggggggggGGgk............",
-        "...kkGggggggGGgggkk.............",
-        "....kGGGGGGGGGGGGGk.............",
-        ".....kGGGGGGGGGGGk..............",
-        "......kGGGGGGGGGk...............",
-        ".......kkkkkkkkk................",
-        "........k.....k.................",
-        "........k.....k.................",
-        ".........kkkkk..................",
-        "................................"
-      ];
-    
-      const SEAL_PAL = { ".": null, "#": "#1b1f24","w":"#ffffff","W":"#e6eef6","g":"#ffd24a","G":"#e0b83e","r":"#d32b2b","R":"#b31f1f" };
+            const SEAL_PAL = { ".": null, "#": "#1b1f24","w":"#ffffff","W":"#e6eef6","g":"#ffd24a","G":"#e0b83e","r":"#d32b2b","R":"#b31f1f" };
       const SEAL_A = ["..RRRR..",".RrrrrR.","RrRGGrrR","RrG##GrR","RrG##GrR","RrRGGrrR",".RrrrrR.","..RRRR.."];
       const SEAL_B = ["..RRRR..",".RrrrrR.","RrRGGrrR","RrG#wGrR","RrG#wGrR","RrRGGrrR",".RrrrrR.","..RRRR.."];
     
@@ -1094,7 +1076,7 @@ function showBossIntro(spec){
   bossIntroTimeout = setTimeout(() => {
     if (state !== 'bossIntro' || pendingBossSpec !== spec) return;
     spawnBossAfterIntro(spec);
-  }, BOSS_INTRO_MS);
+  }, (typeof BOSS_INTRO_MS === 'number' ? BOSS_INTRO_MS : 3500)); // safe default if missing
 }
 
 // Hook up the "Proceed" button if available
@@ -1630,7 +1612,7 @@ function enemyTryShoot(dt){
             if (boss.x < 16 || boss.x + boss.w > W - 16) boss.dir *= -1;
             bossFire(dt);
           }
-          bossFill.style.transform = `scaleX(${boss.hp / boss.maxHP})`;
+          if (bossFill) bossFill.style.transform = `scaleX(${boss.hp / boss.maxHP})`;
           boss.hurt = Math.max(0, (boss.hurt || 0) - dt);
         }
     
@@ -1692,7 +1674,7 @@ function enemyTryShoot(dt){
             boss = null;
             hideBossUI();
             state = 'victory';
-
+    
             if (btnNext) btnNext.style.display = 'none';
             stopMusic();
             playSfx('victory');
@@ -1704,7 +1686,7 @@ function enemyTryShoot(dt){
               "You sip cold coffee. It tastes like <strong>victory</strong>.<br><br>" +
               "Press <kbd>Enter</kbd> to clock back in.";
             elCleared.style.display = 'flex';
-
+    
             setTicker('ZERO UNREAD  -  COFFEE RESERVES CRITICALLY LOW');
             return;
           }
@@ -1826,4 +1808,5 @@ function enemyTryShoot(dt){
         ctx.fillStyle = 'rgba(109,255,151,.1)';
         ctx.fillRect(0, player.y + player.h + 2, W, 1);
       }
+
     })();

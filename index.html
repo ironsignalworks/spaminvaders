@@ -1,305 +1,337 @@
 <!doctype html>
 <html lang="en">
 <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      
-        <title>Spam Invaders — Defend the Inbox</title>
-        <meta name="description" content="Spam Invaders: a fast web arcade where you shred phishing waves, power up shields, and face boss-tier spam. Arrow keys to move, space to fire." />
-        <link rel="canonical" href="https://ironsignalworks.github.io/spaminvaders/" />
-      
-        <!-- Base theme -->
-        <meta name="theme-color" content="#720202" />
-      
-        <!-- Performance -->
-        <link rel="preload" as="image" href="thumb1.png" imagesrcset="thumb1.png" />
-      
-        <!-- Favicons / Icons (reuse card if you don't have dedicated icons yet) -->
-        <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-        <link rel="icon" type="image/png" sizes="192x192" href="icons/favicon-192.png">
-        <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-        <!-- (Optional) fallbacks if you want to just ship one image early on: -->
-        <!-- <link rel="icon" href="thumb1.png" type="image/png"> -->
-        <!-- <link rel="apple-touch-icon" href="thumb1.png"> -->
-      
-        <!-- Open Graph (Facebook/LinkedIn/etc.) -->
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Spam Invaders" />
-        <meta property="og:title" content="Spam Invaders — Defend the Inbox" />
-        <meta property="og:description" content="Block the bots. Nuke the phishing swarm. Boss fights included." />
-        <meta property="og:url" content="https://ironsignalworks.github.io/spaminvaders/" />
-        <meta property="og:image" content="./thumb1.png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Spam Invaders retro UI with score, shield bar, and boss meter." />
-      
-        <!-- Twitter Card -->
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Spam Invaders — Defend the Inbox" />
-        <meta name="twitter:description" content="Retro web arcade shooter. Arrow keys + space. Can you keep the inbox safe?" />
-        <meta name="twitter:image" content="./thumb1.png" />
-        <meta name="twitter:image:alt" content="Spam Invaders retro UI with score, shield bar, and boss meter." />
-      
-        <!-- Optional legacy hint some scrapers still read -->
-        <link rel="image_src" href="./thumb1.png" />
-      
-        <!-- JSON-LD: SoftwareApplication (Game) -->
-        <script type="application/ld+json">
-        {
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          "name": "Spam Invaders",
-          "applicationCategory": "GameApplication",
-          "operatingSystem": "Web",
-          "url": "https://example.com/spam-invaders/",
-          "image": "https://example.com/spam-invaders/thumb1.png",
-          "description": "A browser arcade where you vaporize spam waves, collect shields, and duel bosses.",
-          "author": { "@type": "Organization", "name": "Iron Signal Works" }
-        }
-        </script>      
-<style>
-  :root{
-    --bg:#720202; --ink:#000; --accent:#000080; --danger:#800000; --gold:#c8a200;
-    --panel:#d4d0c8; --panel-dark:#808080; --panel-light:#ffffff; --panel-mid:#a0a0a0;
-    --green:#008000; --blue:#0000a8; --yellow:#c8a200; --shadow:#00000080;
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    /* Layout constants */
-    --bar-h: 36px;         /* reference height for ALL bars (top & bottom) */
-    --bar-pad-v: 4px;      /* consistent inner padding */
-    --bar-pad-h: 8px;
+  <title>Spam Invaders — Defend the Inbox</title>
+  <meta name="description" content="Spam Invaders: a fast web arcade where you shred phishing waves, power up shields, and face boss-tier spam. Arrow keys to move, space to fire." />
+  <link rel="canonical" href="https://ironsignalworks.github.io/spaminvaders/" />
 
-    /* Derived block heights for header/footer (two bars + gap + padding) */
-    --header-h: calc(var(--bar-h) * 2 + 8px + 12px);
-    --footer-h: calc(var(--bar-h) * 2 + 8px + 12px);
+  <!-- Base theme -->
+  <meta name="theme-color" content="#720202" />
 
-    /* Mobile controls dock height (0 on desktop; set in mobile MQ) */
-    --controls-h: 0px;
+  <!-- Performance -->
+  <link rel="preload" as="image" href="thumb1.png" imagesrcset="thumb1.png" />
+
+  <!-- Favicons / Icons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Spam Invaders" />
+  <meta property="og:title" content="Spam Invaders — Defend the Inbox" />
+  <meta property="og:description" content="Block the bots. Nuke the phishing swarm. Boss fights included." />
+  <meta property="og:url" content="https://ironsignalworks.github.io/spaminvaders/" />
+  <meta property="og:image" content="https://ironsignalworks.github.io/spaminvaders/thumb1.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Spam Invaders retro UI with score, shield bar, and boss meter." />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Spam Invaders — Defend the Inbox" />
+  <meta name="twitter:description" content="Retro web arcade shooter. Arrow keys + space. Can you keep the inbox safe?" />
+  <meta name="twitter:image" content="https://ironsignalworks.github.io/spaminvaders/thumb1.png" />
+  <meta name="twitter:image:alt" content="Spam Invaders retro UI with score, shield bar, and boss meter." />
+
+  <!-- Optional legacy hint -->
+  <link rel="image_src" href="https://ironsignalworks.github.io/spaminvaders/thumb1.png" />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Spam Invaders",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Web",
+    "url": "https://ironsignalworks.github.io/spaminvaders/",
+    "image": "https://ironsignalworks.github.io/spaminvaders/thumb1.png",
+    "description": "A browser arcade where you vaporize spam waves, collect shields, and duel bosses.",
+    "author": { "@type": "Organization", "name": "Iron Signal Works" }
   }
-  *{box-sizing:border-box}
-  html,body{height:100%; overflow:hidden;}
-  body{
-    margin:0; display:grid; place-items:center; color:var(--ink);
-    font-family:"MS Sans Serif", Tahoma, Verdana, sans-serif;
-    font-size:120%;
-    background:var(--bg) !important;
-  }
+  </script>
 
-  /* ===== Frame (keeps width; grows DOWN to fit viewport) ===== */
-  .frame{
-    position:relative;
-    width:420px;
-    height:100vh;           /* fill the viewport */
-    max-width:96vw;
-    background:var(--panel);
-    border:2px solid var(--panel-dark);
-    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 0 6px 18px var(--shadow);
-    overflow:hidden;
-  }
+  <style>
+    :root{
+      --bg:#720202; --ink:#000; --accent:#000080; --danger:#800000; --gold:#c8a200;
+      --panel:#d4d0c8; --panel-dark:#808080; --panel-light:#ffffff; --panel-mid:#a0a0a0;
+      --green:#008000; --blue:#0000a8; --yellow:#c8a200; --shadow:#00000080;
 
-  /* ===== TOP: Folder Path + Message Ticker ===== */
-  header{
-    position:absolute; left:0; right:0; top:0; height:var(--header-h);
-    z-index:3; padding:6px 8px;
-    background:var(--panel); border-bottom:2px solid var(--panel-dark);
-    box-shadow: inset 0 -1px 0 var(--panel-light), inset 0 1px 0 var(--panel-mid);
-    display:flex; flex-direction:column; gap:8px; align-items:stretch; justify-content:center;
-  }
+      /* Layout constants */
+      --bar-h: 36px;
+      --bar-pad-v: 4px;
+      --bar-pad-h: 8px;
 
-  /* Unified “bar” style shared by all display bars */
-  .bar{
-    display:flex; align-items:center; gap:6px; min-width:0;
-    height:var(--bar-h);
-    padding:var(--bar-pad-v) var(--bar-pad-h);
-    background:var(--panel); border:2px solid var(--panel-dark);
-    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
-    overflow:hidden;
-  }
+      /* Header/footer heights */
+      --header-h: calc(var(--bar-h) * 2 + 8px + 12px);
+      --footer-h: calc(var(--bar-h) * 2 + 8px + 12px);
 
-  /* Top display: smaller & bold */
-  header .bar{ font-size:0.8em; font-weight:bold; }
-
-  .pathbar{ white-space:nowrap; text-overflow:ellipsis; }
-  .pathbar span{min-width:0; overflow:hidden; text-overflow:ellipsis;}
-
-  .ticker{ text-transform:uppercase; color:#111; }
-  .tickerText{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-
-  /* ===== BOTTOM: HUD ===== */
-  footer{
-    position:absolute; left:0; right:0; bottom:0; height:var(--footer-h);
-    z-index:3; padding:6px 8px 8px;
-    background:var(--panel);
-    border-top:2px solid var(--panel-dark);
-    box-shadow: inset 0 1px 0 var(--panel-light), inset 0 -1px 0 var(--panel-mid);
-    display:flex; flex-direction:column; gap:8px;
-  }
-
-  .hudRow{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
-
-  .hudBlock{
-    height:var(--bar-h);
-    flex:1; display:flex; align-items:center; gap:8px;
-    padding:var(--bar-pad-v) var(--bar-pad-h);
-    background:var(--panel); border:2px solid var(--panel-dark);
-    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
-    min-width:0;
-  }
-  .hudLabel{font-weight:bold; white-space:nowrap;}
-  .hudValue{font-variant-numeric:tabular-nums; min-width:64px; text-align:right;}
-  .hudGrow{flex:1; min-width:0;}
-
-  /* Gauges */
-  .gauge{
-    position:relative; height:12px; width:100%;
-    background:var(--panel); border:2px solid var(--panel-dark);
-    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
-  }
-  .gauge i{
-    position:absolute; inset:2px;
-    background:repeating-linear-gradient(90deg,#9ad29a 0 8px,#7fb97f 8px 16px);
-    transform-origin:left center; transform:scaleX(1);
-  }
-  .gauge.boss i{
-    background:repeating-linear-gradient(90deg,#ff6b6b 0 8px,#d94a4a 8px 16px);
-    transform:scaleX(0);
-  }
-
-  /* Lives */
-  .lives{display:flex;align-items:center;gap:6px;}
-  .life{width:12px;height:10px;background:var(--blue);
-        border:2px solid var(--panel-dark);
-        box-shadow:inset -1px -1px 0 var(--panel-light),inset 1px 1px 0 var(--panel-mid);}
-  .ghost{opacity:.25;}
-
-  /* Legacy boss label kept but hidden */
-  .bosslabel{display:none !important;}
-
-  /* ===== Canvas fills between header and footer, centered ===== */
-  canvas{
-    position:absolute;
-    top:var(--header-h);
-    left:50%;
-    transform:translateX(-50%);
-    width:388px; /* fixed gameboard width */
-    height:calc(100% - var(--header-h) - var(--footer-h) - var(--controls-h)); /* MOBILE: space for dock */
-    background:#020409; z-index:1;
-    image-rendering:pixelated;
-    border:2px solid var(--panel-dark);
-    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
-  }
-
-  /* ===== Popups ===== */
-  .overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:5;
-           background:#00000040; padding:24px;}
-  .overlay.hidden{display:none;}
-  .popup{
-    min-width:260px; max-width:360px; background:var(--panel); color:#111;
-    border:2px solid var(--panel-dark);
-    box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 6px 6px 0 #00000030;
-    font-size:1.25em;
-  }
-  .titlebar{
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:6px 8px; background:var(--accent); color:#fff; font-weight:bold;
-    font-size:1.1em;
-  }
-  .titlebar .controls{display:flex;gap:4px;}
-  .winbtn{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
-          background:var(--panel);color:#111;border:2px solid var(--panel-dark);
-          box-shadow:inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
-          font-size:12px;line-height:1;user-select:none;}
-  .content{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
-  .content h1{margin:0;font-size:1.05em;}
-  .content p{margin:0;font-size:1em;line-height:1.5;}
-  .actions{display:flex;justify-content:flex-end;gap:10px;padding:8px 14px 14px;}
-  .brandFooter{display:flex;justify-content:center;padding:6px 14px 14px;width:100%;}
-  .brandFooter--hidden{display:none;}
-  .brand-link{display:block;text-align:center;font-size:.72em;text-decoration:none;color:inherit;}
-  .brand-link img{display:block;margin:0 auto 6px;width:42px;height:auto;}
-  .brand-link span{display:block;max-width:220px;margin:0 auto;line-height:1.4;}
-  .brand-link--hidden{display:none;}
-  .siteBrand{margin-top:18px;text-align:center;color:#f5f5f5;}
-  .siteBrand .brand-link{display:inline-flex;align-items:center;gap:10px;text-align:left;font-size:.78em;color:inherit;}
-  .siteBrand .brand-link img{margin:0;width:40px;height:auto;}
-  .siteBrand .brand-link span{margin:0;line-height:1.4;}
-  .btn{padding:6px 12px;background:var(--panel);border:2px solid var(--panel-dark);cursor:pointer;
-       font-size:1em; box-shadow:inset -1px -1px 0 var(--panel-light),inset 1px 1px 0 var(--panel-mid);}
-  .btn:hover{filter:brightness(.95);}
-  .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0;}
-  /* --- Make HUD text fit inside pills --- */
-.hudRow { gap: 8px; }
-.hudBlock{
-  font-size: .92em;        /* a touch smaller than body so it fits the bar */
-  line-height: 1;          /* tighter line box so it doesn't spill vertically */
-  min-width: 0;            /* allow flex children to shrink */
-  overflow: hidden;        /* guard-rail: clip if something goes wild */
-}
-
-.hudLabel{
-  flex: 0 1 auto;          /* allow label to shrink before overflowing */
-  min-width: 0;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.hudValue{
-  flex: 0 0 auto;          /* keep numbers aligned on the right edge */
-  min-width: 56px;         /* ensures 5–6 tabular digits fit */
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* Lives: keep the dots inside the pill */
-.lives{
-  flex-wrap: nowrap;
-  overflow: hidden;
-}
-.life{ width: 11px; height: 9px; } /* slightly smaller so 3–5 fit nicely */
-
-/* On small/touch screens, make HUD text a bit smaller again */
-@media (hover:none) and (pointer:coarse){
-  .hudBlock{ font-size: .88em; }
-}
-
-  /* ===== Touch controls DOCK (mobile only) ===== */
-  @media (hover:none) and (pointer:coarse) {
-    :root{ --controls-h: 112px; } /* space carved out under canvas */
-
-    #touchControls {
-      position:absolute;
-      left:0; right:0;
-      bottom:var(--footer-h);          /* sits ABOVE the footer, BELOW the canvas */
-      height:var(--controls-h);
-      padding:12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      z-index:2;
-      pointer-events:none;             /* container ignores taps; buttons accept them */
+      /* Mobile controls dock height (0 on desktop; set in mobile MQ) */
+      --controls-h: 0px;
     }
-    .tc-left, .tc-right {
-      display:flex; gap:12px;
-      pointer-events:auto;
+    *{box-sizing:border-box}
+    html,body{height:100%; overflow:hidden;}
+    body{
+      margin:0; display:grid; place-items:center; color:var(--ink);
+      font-family:"MS Sans Serif", Tahoma, Verdana, sans-serif;
+      font-size:120%;
+      background:var(--bg) !important;
     }
 
-    .tc-btn{
-      min-width:64px; min-height:64px;
-      border:2px solid var(--panel-dark);
+    /* ===== Frame ===== */
+    .frame{
+      position:relative;
+      width:420px;
+      height:100vh;
+      max-width:96vw;
       background:var(--panel);
-      box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 0 2px 0 #00000033;
-      font: bold 20px "MS Sans Serif", Tahoma, Verdana, sans-serif;
-      color:#111; border-radius:10px;
-      touch-action:none; user-select:none;
+      border:2px solid var(--panel-dark);
+      box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 0 6px 18px var(--shadow);
+      overflow:hidden;
     }
-    .tc-btn:active{ filter:brightness(.92); transform:translateY(1px); }
-    .tc-fire{ min-width:76px; min-height:76px; font-size:22px; }
-  }
-  @media (hover:hover) and (pointer:fine) {
-    #touchControls{ display:none; }
-  }
-</style>
+
+    /* ===== Header ===== */
+    header{
+      position:absolute; left:0; right:0; top:0; height:var(--header-h);
+      z-index:3; padding:6px 8px;
+      background:var(--panel); border-bottom:2px solid var(--panel-dark);
+      box-shadow: inset 0 -1px 0 var(--panel-light), inset 0 1px 0 var(--panel-mid);
+      display:flex; flex-direction:column; gap:8px; align-items:stretch; justify-content:center;
+    }
+    .bar{
+      display:flex; align-items:center; gap:6px; min-width:0;
+      height:var(--bar-h);
+      padding:var(--bar-pad-v) var(--bar-pad-h);
+      background:var(--panel); border:2px solid var(--panel-dark);
+      box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+      overflow:hidden;
+    }
+    header .bar{ font-size:0.8em; font-weight:bold; }
+    .pathbar{ white-space:nowrap; text-overflow:ellipsis; }
+    .pathbar span{min-width:0; overflow:hidden; text-overflow:ellipsis;}
+    .ticker{ text-transform:uppercase; color:#111; }
+    .tickerText{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+    /* ===== Footer / HUD ===== */
+    footer{
+      position:absolute; left:0; right:0; bottom:0; height:var(--footer-h);
+      z-index:3; padding:6px 8px 8px;
+      background:var(--panel);
+      border-top:2px solid var(--panel-dark);
+      box-shadow: inset 0 1px 0 var(--panel-light), inset 0 -1px 0 var(--panel-mid);
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .hudRow{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .hudBlock{
+      height:var(--bar-h);
+      flex:1; display:flex; align-items:center; gap:8px;
+      padding:var(--bar-pad-v) var(--bar-pad-h);
+      background:var(--panel); border:2px solid var(--panel-dark);
+      box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+      min-width:0;
+      font-size:.92em; line-height:1; overflow:hidden;
+    }
+    .hudLabel{font-weight:bold; white-space:nowrap; min-width:0; text-overflow:ellipsis; overflow:hidden;}
+    .hudValue{font-variant-numeric:tabular-nums; min-width:56px; text-align:right; white-space:nowrap;}
+    .hudGrow{flex:1; min-width:0;}
+
+    .gauge{
+      position:relative; height:12px; width:100%;
+      background:var(--panel); border:2px solid var(--panel-dark);
+      box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+    }
+    .gauge i{
+      position:absolute; inset:2px;
+      background:repeating-linear-gradient(90deg,#9ad29a 0 8px,#7fb97f 8px 16px);
+      transform-origin:left center; transform:scaleX(1);
+    }
+    .gauge.boss i{
+      background:repeating-linear-gradient(90deg,#ff6b6b 0 8px,#d94a4a 8px 16px);
+      transform:scaleX(0);
+    }
+
+    .lives{display:flex;align-items:center;gap:6px; flex-wrap:nowrap; overflow:hidden;}
+    .life{width:11px;height:9px;background:var(--blue);
+          border:2px solid var(--panel-dark);
+          box-shadow:inset -1px -1px 0 var(--panel-light),inset 1px 1px 0 var(--panel-mid);}
+    .ghost{opacity:.25;}
+
+    .bosslabel{display:none !important;}
+
+    /* ===== Canvas between header/footer, centered ===== */
+    canvas{
+      position:absolute;
+      top:var(--header-h);
+      left:50%;
+      transform:translateX(-50%);
+      width:388px;
+      height:calc(100% - var(--header-h) - var(--footer-h) - var(--controls-h));
+      background:#020409; z-index:1;
+      image-rendering:pixelated;
+      border:2px solid var(--panel-dark);
+      box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+    }
+
+    /* ===== Popups ===== */
+    .overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:5;
+             background:#00000040; padding:24px;}
+    .overlay.hidden{display:none;}
+    .popup{
+      min-width:260px; max-width:360px; background:var(--panel); color:#111;
+      border:2px solid var(--panel-dark);
+      box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 6px 6px 0 #00000030;
+      font-size:1.25em;
+    }
+    .titlebar{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:6px 8px; background:var(--accent); color:#fff; font-weight:bold;
+      font-size:1.1em;
+    }
+    .titlebar .controls{display:flex;gap:4px;}
+    .winbtn{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+            background:var(--panel);color:#111;border:2px solid var(--panel-dark);
+            box-shadow:inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+            font-size:12px;line-height:1;user-select:none;}
+    .content{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+    .content h1{margin:0;font-size:1.05em;}
+    .content p{margin:0;font-size:1em;line-height:1.5;}
+    .actions{display:flex;justify-content:flex-end;gap:10px;padding:8px 14px 14px;}
+    .brandFooter{display:flex;justify-content:center;padding:6px 14px 14px;width:100%;}
+    .brandFooter--hidden{display:none;}
+    .brand-link{display:block;text-align:center;font-size:.72em;text-decoration:none;color:inherit;}
+    .brand-link img{display:block;margin:0 auto 6px;width:42px;height:auto;}
+    .brand-link span{display:block;max-width:220px;margin:0 auto;line-height:1.4;}
+    .brand-link--hidden{display:none;}
+    .siteBrand{margin-top:18px;text-align:center;color:#f5f5f5;}
+    .siteBrand .brand-link{display:inline-flex;align-items:center;gap:10px;text-align:left;font-size:.78em;color:inherit;}
+    .siteBrand .brand-link img{margin:0;width:40px;height:auto;}
+    .siteBrand .brand-link span{margin:0;line-height:1.4;}
+    .btn{padding:6px 12px;background:var(--panel);border:2px solid var(--panel-dark);cursor:pointer;
+         font-size:1em; box-shadow:inset -1px -1px 0 var(--panel-light),inset 1px 1px 0 var(--panel-mid);}
+    .btn:hover{filter:brightness(.95);}
+    .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0;}
+
+    /* ===== Touch controls (mobile only) ===== */
+    @media (hover:none) and (pointer:coarse) {
+      :root{ --controls-h: 112px; }
+
+      #touchControls {
+        position:absolute;
+        left:0; right:0;
+        bottom:var(--footer-h);
+        height:var(--controls-h);
+        padding:12px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        z-index:2;
+        pointer-events:none; /* container ignores taps; buttons accept them */
+      }
+      .tc-left, .tc-right { display:flex; gap:12px; pointer-events:auto; }
+
+      .tc-btn{
+        min-width:64px; min-height:64px;
+        border:2px solid var(--panel-dark);
+        background:var(--panel);
+        box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 0 2px 0 #00000033;
+        font: bold 20px "MS Sans Serif", Tahoma, Verdana, sans-serif;
+        color:#111; border-radius:10px;
+        touch-action:none; user-select:none;
+      }
+      .tc-btn:active{ filter:brightness(.92); transform:translateY(1px); }
+      .tc-fire{ min-width:76px; min-height:76px; font-size:22px; }
+
+      /* Joystick */
+      .tc-right{ align-items:center; }
+      .tc-stick{
+        position:relative;
+        width:96px; height:96px;
+        border:2px solid var(--panel-dark);
+        background:var(--panel);
+        box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid), 0 2px 0 #00000033;
+        border-radius:50%;
+        touch-action:none;
+        user-select:none;
+      }
+      .tc-stick::after{
+        content:"";
+        position:absolute; left:50%; top:50%;
+        width:8px; height:8px; border-radius:50%;
+        background:#888; transform:translate(-50%,-50%);
+        opacity:.45;
+      }
+      .tc-stick-head{
+        position:absolute;
+        left:50%; top:50%;
+        width:44px; height:44px;
+        border-radius:50%;
+        border:2px solid var(--panel-dark);
+        background:var(--panel);
+        box-shadow: inset -1px -1px 0 var(--panel-light), inset 1px 1px 0 var(--panel-mid);
+        transform:translate(-50%,-50%);
+        transition:transform 90ms ease;
+      }
+
+      /* Slightly smaller HUD text on touch */
+      .hudBlock{ font-size:.88em; }
+    }
+
+    @media (hover:hover) and (pointer:fine) {
+      #touchControls{ display:none; }
+    }
+    :root{
+  /* ...existing vars... */
+  --site-footer-h: 56px;   /* height of the outside footer */
+}
+
+/* Shrink the frame so it leaves room for the footer */
+.frame{
+  /* was: height:100vh; */
+  height: calc(100vh - var(--site-footer-h));
+}
+
+/* New site footer outside the frame */
+.siteFooter{
+  position: fixed;         /* always pinned to bottom edge */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--site-footer-h);
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  background: var(--bg);   /* matches page bg */
+  color: #f5f5f5;
+  border-top: 2px solid #00000040;
+  padding: 8px 12px;
+  font: 600 14px/1.2 "MS Sans Serif", Tahoma, Verdana, sans-serif;
+}
+
+.siteFooter a{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.siteFooter img{
+  width: 28px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 1px 0 #0006);
+}
+
+  </style>
 </head>
 <body>
   <div id="gameRoot" class="frame">
@@ -326,14 +358,14 @@
         <button class="tc-btn tc-fire" data-key="Space" aria-label="Fire">●</button>
       </div>
       <div class="tc-right">
-        <button class="tc-btn" data-key="ArrowLeft" aria-label="Move left">◀</button>
-        <button class="tc-btn" data-key="ArrowRight" aria-label="Move right">▶</button>
+        <div id="joystick" class="tc-stick" role="slider" aria-label="Move" aria-valuemin="-1" aria-valuemax="1" aria-valuenow="0">
+          <div class="tc-stick-head"></div>
+        </div>
       </div>
     </div>
 
     <!-- BOTTOM: HUD -->
     <footer>
-      <!-- Row 1: Score, High, Lives -->
       <div class="hudRow">
         <div class="hudBlock">
           <span class="hudLabel">Score</span>
@@ -349,7 +381,6 @@
         </div>
       </div>
 
-      <!-- Row 2: Shield, Boss HP (side by side) -->
       <div class="hudRow">
         <div class="hudBlock">
           <span class="hudLabel">Shield</span>
@@ -432,76 +463,134 @@
           <p>The archive is compromised. Press Start to try again.</p>
         </div>
         <div class="actions"><button id="btnAgain" class="btn">Start Over</button></div>
-        <div class="brandFooter">
-          <a id="brandGameOver"
-             class="brand-link"
-             href="https://ironsignalworks.com"
-             target="_blank"
-             rel="noopener"
-             aria-label="Visit Iron Signal Works">
-            <img src="logo.png" alt="Iron Signal Works logo">
-            <span>Iron Signal Works — Cold Code, Hot Circuits.</span>
-          </a>
-        </div>
       </div>
     </div>
+    <footer class="siteFooter" aria-label="Brand">
+  <a href="https://ironsignalworks.com" target="_blank" rel="noopener"
+     aria-label="Visit Iron Signal Works">
+    <img src="logo.png" alt="" />
+    <span>Iron Signal Works — Cold Code, Hot Circuits.</span>
+  </a>
+</footer>
 
   </div>
 
-  <!-- Wire touch controls by synthesizing KeyboardEvents so main.js keeps working -->
+  <!-- Touch controls -> synth KeyboardEvents so main.js keeps working -->
   <script>
-    (function initTouchControls(){
-      const root = document.getElementById('touchControls');
-      if (!root) return;
+  (function initTouchControls(){
+    const root = document.getElementById('touchControls');
+    if (!root) return;
 
-      const isTouch = matchMedia('(hover: none) and (pointer: coarse)').matches;
-      if (!isTouch) return;
+    const isTouch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (!isTouch) return;
 
-      const active = new Map(); // pointerId -> key
+    const active = new Map(); // pointerId -> key
 
-      function keyFor(code){
-        if (code === 'Space') return ' ';
-        return code;
-      }
-      function sendKey(code, type){
-        const evt = new KeyboardEvent(type, {
-          bubbles: true,
-          cancelable: true,
-          code,
-          key: keyFor(code),
-          repeat: (type === 'keydown')
-        });
-        document.dispatchEvent(evt);
-      }
-
-      function onDown(e){
-        const btn = e.target.closest('.tc-btn');
-        if (!btn) return;
-        e.preventDefault(); e.stopPropagation();
-        const code = btn.dataset.key;
-        if (!code) return;
-        active.set(e.pointerId ?? Math.random(), code);
-        sendKey(code, 'keydown');
-        btn.setPointerCapture?.(e.pointerId);
-        if ('vibrate' in navigator) { try { navigator.vibrate(10); } catch(_){} }
-      }
-      function onUp(e){
-        const id = e.pointerId ?? null;
-        const code = active.get(id);
-        if (code) sendKey(code, 'keyup');
-        active.delete(id);
-      }
-
-      root.addEventListener('pointerdown', onDown, {passive:false});
-      root.addEventListener('pointerup', onUp);
-      root.addEventListener('pointercancel', onUp);
-      root.addEventListener('pointerleave', onUp);
-
-      window.addEventListener('blur', () => {
-        for (const code of active.values()) sendKey(code, 'keyup');
-        active.clear();
+    function keyFor(code){ return code === 'Space' ? ' ' : code; }
+    function sendKey(code, type){
+      const evt = new KeyboardEvent(type, {
+        bubbles:true, cancelable:true, code, key:keyFor(code), repeat:(type==='keydown')
       });
-    })();
+      document.dispatchEvent(evt);
+    }
+
+    // Fire button
+    function onDownBtn(e){
+      const btn = e.target.closest('.tc-btn');
+      if (!btn) return;
+      e.preventDefault(); e.stopPropagation();
+      const code = btn.dataset.key;
+      if (!code) return;
+      const id = e.pointerId ?? Math.random();
+      active.set(id, code);
+      sendKey(code, 'keydown');
+      btn.setPointerCapture?.(e.pointerId);
+      if ('vibrate' in navigator) { try { navigator.vibrate(10); } catch(_){} }
+    }
+    function onUpBtn(e){
+      const id = e.pointerId ?? null;
+      const code = active.get(id);
+      if (code) sendKey(code, 'keyup');
+      active.delete(id);
+    }
+    root.addEventListener('pointerdown', onDownBtn, {passive:false});
+    root.addEventListener('pointerup', onUpBtn);
+    root.addEventListener('pointercancel', onUpBtn);
+    root.addEventListener('pointerleave', onUpBtn);
+
+    // Joystick
+    const stick = document.getElementById('joystick');
+    const knob  = stick?.querySelector('.tc-stick-head');
+    if (!stick || !knob) return;
+
+    const R = 44;            // radius (px)
+    const DEAD = 12;         // deadzone (px)
+    const THRESH = 18;       // key trigger threshold (px)
+    let center = { x: 0, y: 0 };
+    let activeDir = null;    // 'ArrowLeft' | 'ArrowRight' | null
+    let ptrId = null;
+
+    function setAria(val){
+      const a = Math.max(-1, Math.min(1, val));
+      stick.setAttribute('aria-valuenow', String(a));
+    }
+    function placeKnob(dx, dy){
+      knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    }
+    function updateDir(dx){
+      const prev = activeDir;
+      let next = null;
+      if (dx <= -THRESH) next = 'ArrowLeft';
+      else if (dx >= THRESH) next = 'ArrowRight';
+      if (prev === next) return;
+      if (prev) sendKey(prev, 'keyup');
+      if (next) sendKey(next, 'keydown');
+      activeDir = next;
+      setAria(next === 'ArrowLeft' ? -1 : next === 'ArrowRight' ? 1 : 0);
+    }
+
+    function stickDown(e){
+      if (ptrId !== null) return;
+      e.preventDefault(); e.stopPropagation();
+      ptrId = e.pointerId ?? 1;
+      stick.setPointerCapture?.(e.pointerId);
+      const rect = stick.getBoundingClientRect();
+      center = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+      stickMove(e); // immediate
+    }
+    function stickMove(e){
+      if ((e.pointerId ?? 1) !== ptrId) return;
+      e.preventDefault(); e.stopPropagation();
+      const dx = e.clientX - center.x;
+      const dy = e.clientY - center.y;
+      // clamp to circle
+      const mag = Math.hypot(dx, dy);
+      const k = mag > R ? R/mag : 1;
+      placeKnob(dx*k, dy*k);
+      updateDir(Math.abs(dx) < DEAD ? 0 : dx);
+    }
+    function stickUp(e){
+      if ((e.pointerId ?? 1) !== ptrId) return;
+      e.preventDefault(); e.stopPropagation();
+      if (activeDir) sendKey(activeDir, 'keyup');
+      activeDir = null; setAria(0);
+      placeKnob(0, 0);
+      ptrId = null;
+    }
+
+    stick.addEventListener('pointerdown', stickDown, {passive:false});
+    stick.addEventListener('pointermove', stickMove,  {passive:false});
+    stick.addEventListener('pointerup',   stickUp);
+    stick.addEventListener('pointercancel', stickUp);
+    stick.addEventListener('pointerleave',  stickUp);
+
+    // Safety
+    window.addEventListener('blur', () => {
+      if (activeDir) sendKey(activeDir, 'keyup');
+      activeDir = null; setAria(0);
+      placeKnob(0, 0);
+    });
+  })();
   </script>
 
   <script type="module" src="./main.js"></script>
