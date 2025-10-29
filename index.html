@@ -60,6 +60,8 @@
       --bg:#720202; --ink:#000; --accent:#000080; --danger:#800000; --gold:#c8a200;
       --panel:#d4d0c8; --panel-dark:#808080; --panel-light:#ffffff; --panel-mid:#a0a0a0;
       --green:#008000; --blue:#0000a8; --yellow:#c8a200; --shadow:#00000080;
+      
+
 
       /* Layout constants */
       --bar-h: 36px;
@@ -69,7 +71,7 @@
       /* Header/footer heights */
       --header-h: calc(var(--bar-h) * 2 + 8px + 12px);
       --footer-h: calc(var(--bar-h) * 2 + 8px + 12px);
-
+      --site-footer-h: 56px; /* outside footer height */
       /* Mobile controls dock height (0 on desktop; set in mobile MQ) */
       --controls-h: 0px;
     }
@@ -284,51 +286,55 @@
     @media (hover:hover) and (pointer:fine) {
       #touchControls{ display:none; }
     }
-    :root{
-  /* ...existing vars... */
-  --site-footer-h: 56px;   /* height of the outside footer */
+:root{
+  --site-footer-h: 56px; /* outside footer height */
 }
 
-/* Shrink the frame so it leaves room for the footer */
+/* Shrink the frame so it leaves room for the fixed footer and center it horizontally */
 .frame{
   /* was: height:100vh; */
-  height: calc(100vh - var(--site-footer-h));
+  height: calc(100svh - var(--site-footer-h) - env(safe-area-inset-bottom));
+  max-height: calc(100svh - var(--site-footer-h) - env(safe-area-inset-bottom));
+  margin: 0 auto; /* keep centered horizontally even if body grid is disabled */
 }
 
-/* New site footer outside the frame */
+/* New site footer outside the frame (fixed to viewport bottom) */
 .siteFooter{
-  position: fixed;         /* always pinned to bottom edge */
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: var(--site-footer-h);
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: calc(var(--site-footer-h) + env(safe-area-inset-bottom));
   z-index: 10;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-
-  background: var(--bg);   /* matches page bg */
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--bg);
   color: #f5f5f5;
   border-top: 2px solid #00000040;
-  padding: 8px 12px;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom)) 12px;
   font: 600 14px/1.2 "MS Sans Serif", Tahoma, Verdana, sans-serif;
 }
 
 .siteFooter a{
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: inherit;
-  text-decoration: none;
+  display:inline-flex; align-items:center; gap:10px;
+  color:inherit; text-decoration:none;
 }
 
-.siteFooter img{
-  width: 28px;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 1px 0 #0006);
+.siteFooter img{ width:28px; height:auto; display:block; filter: drop-shadow(0 1px 0 #0006); }
+
+/* Mobile: allow page scroll (so nothing feels blocked) but keep the frame centered horizontally */
+@media (hover:none) and (pointer:coarse){
+  html, body{
+    height:auto; min-height:100%;
+    overflow:auto;            /* enable scroll */
+  }
+  body{
+    display:block;            /* disable grid centering so scroll works naturally */
+    padding: 0 0 calc(var(--site-footer-h) + env(safe-area-inset-bottom)) 0; /* breathing room under content if needed */
+  }
+  .frame{
+    margin: 8px auto;         /* keep horizontal centering */
+    width: 420px;
+    max-width: 96vw;
+  }
 }
 
   </style>
@@ -406,8 +412,8 @@
           <div class="controls"><div class="winbtn">_</div><div class="winbtn">□</div><div class="winbtn">X</div></div>
         </div>
         <div class="content">
-          <h1>Welcome to the ultimate spam nightmare.</h1>
-          <p>Defend the archive! Deploy spam filters, collect shield and life diamonds. Hold the line, or be consumed by the <strong>most weaponized scam campaign ever sent.</strong> Arrow keys or WASD to move. Space to fire. Hope is optional.</p>
+          <h1>This office needs you.</h1>
+          <p>Deploy spam filters, collect shield and VPN diamonds. Hold the line, or be consumed by the <strong>most weaponized spam campaign ever sent.</strong> Arrow keys or WASD to move. Space to fire. Hope is optional.</p>
         </div>
         <div class="actions"><button id="btnStart" class="btn">Start</button></div>
       </div>
@@ -465,6 +471,7 @@
         <div class="actions"><button id="btnAgain" class="btn">Start Over</button></div>
       </div>
     </div>
+  </div>
     <footer class="siteFooter" aria-label="Brand">
   <a href="https://ironsignalworks.com" target="_blank" rel="noopener"
      aria-label="Visit Iron Signal Works">
@@ -472,9 +479,6 @@
     <span>Iron Signal Works — Cold Code, Hot Circuits.</span>
   </a>
 </footer>
-
-  </div>
-
   <!-- Touch controls -> synth KeyboardEvents so main.js keeps working -->
   <script>
   (function initTouchControls(){
